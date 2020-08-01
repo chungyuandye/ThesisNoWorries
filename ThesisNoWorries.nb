@@ -1,0 +1,4950 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    193229,       4942]
+NotebookOptionsPosition[    192772,       4923]
+NotebookOutlinePosition[    193127,       4939]
+CellTagsIndexPosition[    193084,       4936]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Needs", "[", "\"\<ANOVA`\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Needs", "[", "\"\<RLink`\>\"", "]"}], ";"}], "\n", 
+  RowBox[{
+  "(*", " ", "\:6839\:64da\:4f5c\:696d\:7cfb\:7d71\:8f09\:5165R\:8def\:5f91", 
+   " ", "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"If", "[", 
+    RowBox[{
+     RowBox[{"StringContainsQ", "[", 
+      RowBox[{"$Version", ",", "\"\<Windows\>\""}], "]"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"InstallR", "[", 
+       RowBox[{
+       "\"\<RHomeLocation\>\"", "->", 
+        "\"\<C:\\\\Program Files\\\\R\\\\R-3.0.0\>\""}], "]"}], ";"}], ",", 
+     "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"StringContainsQ", "[", 
+        RowBox[{"$Version", ",", "\"\<Linux\>\""}], "]"}], ",", "\n", 
+       RowBox[{
+        RowBox[{"SetEnvironment", "[", 
+         RowBox[{"\"\<LD_LIBRARY_PATH\>\"", "->", "\"\</usr/lib/R/lib\>\""}], 
+         "]"}], ";", "\n", 
+        RowBox[{"InstallR", "[", 
+         RowBox[{
+          RowBox[{"\"\<RHomeLocation\>\"", "->", "\"\</usr/lib/R\>\""}], ",", 
+          
+          RowBox[{"\"\<RVersion\>\"", "->", "\"\<R-3.2.4\>\""}]}], "]"}], 
+        ";"}], ",", "\n", 
+       RowBox[{
+        RowBox[{"Needs", "@", "\"\<JLink`\>\""}], ";", "\n", 
+        RowBox[{"SetEnvironment", "[", 
+         RowBox[{
+         "\"\<DYLD_LIBRARY_PATH\>\"", "->", 
+          "\"\</Library/Frameworks/R.framework/Resources/lib\>\""}], "]"}], 
+        ";", "\n", 
+        RowBox[{"InstallR", "[", 
+         RowBox[{
+          RowBox[{"\"\<RVersion\>\"", "->", "3"}], ",", 
+          RowBox[{
+          "\"\<RHomeLocation\>\"", "->", 
+           "\"\</Library/Frameworks/R.framework/Resources\>\""}], ",", 
+          RowBox[{
+          "\"\<NativeLibLocation\>\"", "->", 
+           "\"\</Library/Frameworks/R.framework/Resources/Library/rJava/JRI\>\
+\""}]}], "]"}], ";"}]}], "\n", "\n", "]"}]}], "]"}], ";"}], "\n", "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"For", " ", "Windows"}], " ", "*)"}], "\n", 
+  RowBox[{"(*", "\n", 
+   RowBox[{"InstallR", "[", 
+    RowBox[{
+    "\"\<RHomeLocation\>\"", "\[Rule]", 
+     "\"\<C:\\\\Program Files\\\\R\\\\R-3.0.0\>\""}], "]"}], "\n", "*)"}], 
+  "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"For", " ", "Linux"}], " ", "*)"}], "\n", 
+  RowBox[{"(*", "\n", 
+   RowBox[{
+    RowBox[{"SetEnvironment", "[", 
+     RowBox[{"\"\<LD_LIBRARY_PATH\>\"", "\[Rule]", "\"\</usr/lib/R/lib\>\""}],
+      "]"}], "\n", 
+    RowBox[{"InstallR", "[", 
+     RowBox[{
+      RowBox[{"\"\<RHomeLocation\>\"", "\[Rule]", "\"\</usr/lib/R\>\""}], ",", 
+      RowBox[{"\"\<RVersion\>\"", "\[Rule]", "\"\<R-3.2.3\>\""}]}], "]"}]}], 
+   "\n", "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Print", "@", 
+    RowBox[{"REvaluate", "[", "\"\<R.version.string\>\"", "]"}]}], ";"}], 
+  "\n", 
+  RowBox[{"(*", "\n", 
+   RowBox[{
+   "REvaluate", "[", "\"\<install.packages(\\\"lavaan\\\")\>\"", "]"}], "\n", 
+   "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"REvaluate", "[", "\"\<library(lavaan);\>\"", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"myreg", "[", 
+     RowBox[{"data1_", ",", "data2_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "num1", ",", "num2", ",", "vars", ",", "mymodel", ",", "mycoef", ",", 
+        "myr2", ",", "myreport", ",", "myanova", ",", "yy", ",", "mypvalue", 
+        ",", "mycolumn"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"num1", "=", 
+        RowBox[{"Length", "@", "data1"}]}], ";", "\n", 
+       RowBox[{"num2", "=", 
+        RowBox[{"Length", "@", "data2"}]}], ";", "\n", 
+       RowBox[{"vars", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ToExpression", "[", 
+           RowBox[{"\"\<X\>\"", "<>", 
+            RowBox[{"ToString", "[", "#", "]"}]}], "]"}], "&"}], "/@", 
+         RowBox[{"Range", "[", "num1", "]"}]}]}], ";", "\n", 
+       RowBox[{"mymodel", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"LinearModelFit", "[", 
+           RowBox[{
+            RowBox[{"Transpose", "@", 
+             RowBox[{"Insert", "[", 
+              RowBox[{"data1", ",", 
+               RowBox[{"data2", "[", 
+                RowBox[{"[", "#", "]"}], "]"}], ",", 
+               RowBox[{"-", "1"}]}], "]"}]}], ",", "vars", ",", "vars"}], 
+           "]"}], "&"}], "/@", 
+         RowBox[{"Range", "[", "num2", "]"}]}]}], ";", "\n", 
+       RowBox[{"mycoef", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"mymodel", "[", 
+               RowBox[{"[", "#", "]"}], "]"}], "[", "\"\<ParameterTable\>\"", 
+              "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"1", ",", "1"}], "]"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"3", ";;", 
+              RowBox[{"-", "1"}]}], "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"{", 
+              RowBox[{"2", ",", 
+               RowBox[{"-", "1"}]}], "}"}]}], "]"}], "]"}], "&"}], "/@", 
+         RowBox[{"Range", "[", "num2", "]"}]}]}], ";", "\n", 
+       RowBox[{"mycoef", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Abs", "@", "#"}], "<", "0.0001"}], ",", "0", ",", 
+             "#"}], "]"}], "&"}], ",", "mycoef", ",", 
+          RowBox[{"{", "3", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Flatten", "[", "#", "]"}], "&"}], "/@", 
+         RowBox[{"Transpose", "@", "mycoef"}]}]}], ";", "\n", 
+       RowBox[{"myr2", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"mymodel", "[", 
+            RowBox[{"[", "#", "]"}], "]"}], "[", "\"\<RSquared\>\"", "]"}], 
+          "&"}], "/@", 
+         RowBox[{"Range", "[", "num2", "]"}]}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"myreport", ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"#", ",", "\"\<\>\""}], "}"}], "&"}], "/@", "myr2"}], 
+           "]"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"myr2", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"mymodel", "[", 
+            RowBox[{"[", "#", "]"}], "]"}], "[", "\"\<AdjustedRSquared\>\"", 
+           "]"}], "&"}], "/@", 
+         RowBox[{"Range", "[", "num2", "]"}]}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"myreport", ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"#", ",", "\"\<\>\""}], "}"}], "&"}], "/@", "myr2"}], 
+           "]"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"myanova", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"Total", "@", 
+            RowBox[{
+             RowBox[{"mymodel", "[", 
+              RowBox[{"[", "#", "]"}], "]"}], "[", 
+             "\"\<ANOVATableFStatistics\>\"", "]"}]}], "/", "num1"}], "&"}], "/@", 
+         RowBox[{"Range", "[", "num2", "]"}]}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"myreport", ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"#", ",", "\"\<\>\""}], "}"}], "&"}], "/@", "myanova"}],
+            "]"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"mypvalue", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Probability", "[", 
+           RowBox[{
+            RowBox[{"yy", ">=", "#"}], ",", 
+            RowBox[{"yy", "\[Distributed]", 
+             RowBox[{"FRatioDistribution", "[", 
+              RowBox[{"num1", ",", 
+               RowBox[{
+                RowBox[{"Length", "@", 
+                 RowBox[{"data1", "[", 
+                  RowBox[{"[", "1", "]"}], "]"}]}], "-", "1", "-", "num1"}]}],
+               "]"}]}]}], "]"}], "&"}], "/@", "myanova"}]}], ";", "\n", 
+       RowBox[{"mypvalue", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Abs", "@", "#"}], "<", "0.0001"}], ",", "0", ",", "#"}],
+            "]"}], "&"}], "/@", "mypvalue"}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"myreport", ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"#", ",", "\"\<\>\""}], "}"}], "&"}], "/@", 
+            "mypvalue"}], "]"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"mycolumn", "=", 
+        RowBox[{"Flatten", "@", 
+         RowBox[{"{", 
+          RowBox[{
+          "vars", ",", "\"\<R^2\>\"", ",", "\"\<Adj_R^2\>\"", ",", 
+           "\"\<F\>\"", ",", "\"\<P value\>\""}], "}"}]}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"MapThread", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Flatten", "@", 
+            RowBox[{"{", 
+             RowBox[{"#1", ",", "#2"}], "}"}]}], "&"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"mycolumn", ",", "myreport"}], "}"}]}], "]"}]}], ";", "\n",
+        "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"myreport", ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{"{", 
+            RowBox[{"\"\<\:8b8a\:6578\>\"", ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{
+                "\"\<\:4f30\:8a08\:503c\>\"", ",", "\"\<P \:503c\>\""}], 
+                "}"}], "&"}], "/@", 
+              RowBox[{"Range", "[", "num2", "]"}]}]}], "}"}], "]"}], ",", 
+          "1"}], "]"}]}], ";", "\n", 
+       RowBox[{"Map", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"NumberForm", "[", 
+           RowBox[{"#", ",", 
+            RowBox[{"{", 
+             RowBox[{"5", ",", "3"}], "}"}]}], "]"}], "&"}], ",", "myreport", 
+         ",", 
+         RowBox[{"{", "2", "}"}]}], "]"}]}]}], "\n", "]"}]}], ";"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"myhlm", "[", 
+     RowBox[{"datax_", ",", "datam_", ",", "datay_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "numx", ",", "numm", ",", "numy", ",", "myreportxm", ",", "myreportxy",
+         ",", "myreportmy", ",", "rulexm", ",", "rulemy", ",", ",", "rulexmy",
+         ",", "myreportxmy"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"numx", "=", 
+        RowBox[{"Length", "@", "datax"}]}], ";", "\n", 
+       RowBox[{"numm", "=", 
+        RowBox[{"Length", "@", "datam"}]}], ";", "\n", 
+       RowBox[{"numy", "=", 
+        RowBox[{"Length", "@", "datay"}]}], ";", "\n", 
+       RowBox[{"myreportxm", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"myreg", "[", 
+           RowBox[{"datax", ",", "datam"}], "]"}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"\"\<\>\"", ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{"\"\<M\>\"", "<>", 
+                  RowBox[{"ToString", "[", "#", "]"}]}], ",", "\"\<\>\""}], 
+                "}"}], "&"}], "/@", 
+              RowBox[{"Range", "[", "numm", "]"}]}]}], "}"}]}], ",", "1"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{"myreportxy", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"myreg", "[", 
+           RowBox[{"datax", ",", "datay"}], "]"}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"\"\<\>\"", ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{"\"\<Y\>\"", "<>", 
+                  RowBox[{"ToString", "[", "#", "]"}]}], ",", "\"\<\>\""}], 
+                "}"}], "&"}], "/@", 
+              RowBox[{"Range", "[", "numy", "]"}]}]}], "}"}]}], ",", "1"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{"myreportmy", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"myreg", "[", 
+           RowBox[{"datam", ",", "datay"}], "]"}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"\"\<\>\"", ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{"\"\<Y\>\"", "<>", 
+                  RowBox[{"ToString", "[", "#", "]"}]}], ",", "\"\<\>\""}], 
+                "}"}], "&"}], "/@", 
+              RowBox[{"Range", "[", "numy", "]"}]}]}], "}"}]}], ",", "1"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{"rulemy", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"ToExpression", "[", 
+            RowBox[{"\"\<X\>\"", "<>", 
+             RowBox[{"ToString", "[", "#", "]"}]}], "]"}], "->", 
+           RowBox[{"ToExpression", "[", 
+            RowBox[{"\"\<M\>\"", "<>", 
+             RowBox[{"ToString", "[", "#", "]"}]}], "]"}]}], "&"}], "/@", 
+         RowBox[{"Range", "[", "numm", "]"}]}]}], ";", "\n", 
+       RowBox[{"myreportmy", "=", 
+        RowBox[{"myreportmy", "/.", "rulemy"}]}], ";", "\n", 
+       RowBox[{"myreportxmy", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"myreportxy", ",", 
+            RowBox[{
+             RowBox[{"myreg", "[", 
+              RowBox[{
+               RowBox[{"Join", "[", 
+                RowBox[{"datax", ",", "datam"}], "]"}], ",", "datay"}], "]"}],
+              "[", 
+             RowBox[{"[", 
+              RowBox[{"2", ";;", 
+               RowBox[{"-", "1"}]}], "]"}], "]"}]}], "}"}], ",", "1"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{"rulemy", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"ToExpression", "[", 
+            RowBox[{"\"\<X\>\"", "<>", 
+             RowBox[{"ToString", "[", 
+              RowBox[{"numx", "+", "#"}], "]"}]}], "]"}], "->", 
+           RowBox[{"ToExpression", "[", 
+            RowBox[{"\"\<M\>\"", "<>", 
+             RowBox[{"ToString", "[", "#", "]"}]}], "]"}]}], "&"}], "/@", 
+         RowBox[{"Range", "[", "numm", "]"}]}]}], ";", "\n", "\n", "\n", 
+       RowBox[{"myreportxmy", "=", 
+        RowBox[{
+         RowBox[{"Map", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"ToString", "@", 
+             RowBox[{"NumberForm", "[", 
+              RowBox[{"#", ",", 
+               RowBox[{"{", 
+                RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+           RowBox[{"myreportxmy", "/.", "rulemy"}], ",", 
+           RowBox[{"{", "3", "}"}]}], "]"}], "//", "TableForm"}]}], ";", "\n", 
+       RowBox[{"myreportxm", "=", 
+        RowBox[{
+         RowBox[{"Map", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"ToString", "@", 
+             RowBox[{"NumberForm", "[", 
+              RowBox[{"#", ",", 
+               RowBox[{"{", 
+                RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+           "myreportxm", ",", 
+           RowBox[{"{", "3", "}"}]}], "]"}], "//", "TableForm"}]}], ";", "\n", 
+       RowBox[{"myreportxy", "=", 
+        RowBox[{
+         RowBox[{"Map", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"ToString", "@", 
+             RowBox[{"NumberForm", "[", 
+              RowBox[{"#", ",", 
+               RowBox[{"{", 
+                RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+           "myreportxy", ",", 
+           RowBox[{"{", "3", "}"}]}], "]"}], "//", "TableForm"}]}], ";", "\n", 
+       RowBox[{"myreportmy", "=", 
+        RowBox[{
+         RowBox[{"Map", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"ToString", "@", 
+             RowBox[{"NumberForm", "[", 
+              RowBox[{"#", ",", 
+               RowBox[{"{", 
+                RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+           "myreportmy", ",", 
+           RowBox[{"{", "3", "}"}]}], "]"}], "//", "TableForm"}]}], ";", "\n",
+        "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"\"\<X->Y\\n\>\"", ",", "\n", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToString", "@", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{"#", ",", 
+                RowBox[{"{", 
+                 RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+            "myreportxy", ",", 
+            RowBox[{"{", "3", "}"}]}], "]"}], ",", "\n", "\"\<\\nX->M\\n\>\"",
+           ",", "\n", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToString", "@", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{"#", ",", 
+                RowBox[{"{", 
+                 RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+            "myreportxm", ",", 
+            RowBox[{"{", "3", "}"}]}], "]"}], ",", "\n", "\"\<\\nM->Y\\n\>\"",
+           ",", "\n", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToString", "@", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{"#", ",", 
+                RowBox[{"{", 
+                 RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+            "myreportmy", ",", 
+            RowBox[{"{", "3", "}"}]}], "]"}], ",", "\n", "\"\<\\nX,M->Y\>\"", 
+          ",", "\n", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToString", "@", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{"#", ",", 
+                RowBox[{"{", 
+                 RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+            RowBox[{"myreportxmy", "/.", "rulemy"}], ",", 
+            RowBox[{"{", "3", "}"}]}], "]"}]}], "\n", "}"}], "//", 
+        "Column"}]}]}], "\n", "\n", "]"}]}], ";"}], "\n", "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"mycronbach", "[", 
+     RowBox[{"datax_", ",", "factornum_", ",", "varstring_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "numx", ",", "numf", ",", "seq", ",", "newdatax", ",", "myalpha"}], 
+       "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"numx", "=", 
+        RowBox[{"Length", "@", "datax"}]}], ";", "\n", 
+       RowBox[{"numf", "=", 
+        RowBox[{"Length", "@", "factornum"}]}], ";", "\n", 
+       RowBox[{"seq", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornum"}], "}"}]}], "]"}], ",", "2", ",", 
+           "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatax", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"datax", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}], "&"}], "/@", 
+         "seq"}]}], ";", "\n", 
+       RowBox[{"myalpha", "=", 
+        RowBox[{"N", "@", 
+         RowBox[{"Flatten", "@", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"factornum", "[", 
+                 RowBox[{"[", "#", "]"}], "]"}], "/", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"factornum", "[", 
+                   RowBox[{"[", "#", "]"}], "]"}], "-", "1"}], ")"}]}], "*", 
+               RowBox[{"(", 
+                RowBox[{"1", "-", 
+                 RowBox[{
+                  RowBox[{"Total", "[", 
+                   RowBox[{"Variance", "/@", 
+                    RowBox[{"Transpose", "@", 
+                    RowBox[{"newdatax", "[", 
+                    RowBox[{"[", "#", "]"}], "]"}]}]}], "]"}], "/", 
+                  RowBox[{"Variance", "[", 
+                   RowBox[{"Total", "/@", 
+                    RowBox[{"newdatax", "[", 
+                    RowBox[{"[", "#", "]"}], "]"}]}], "]"}]}]}], ")"}]}], 
+              "&"}], "/@", 
+             RowBox[{"Range", "[", "numf", "]"}]}], ",", "\n", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Length", "[", 
+               RowBox[{"Transpose", "@", "datax"}], "]"}], "/", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"Length", "[", 
+                 RowBox[{"Transpose", "@", "datax"}], "]"}], "-", "1"}], 
+               ")"}]}], "*", 
+             RowBox[{"(", 
+              RowBox[{"1", "-", 
+               RowBox[{
+                RowBox[{"Total", "[", 
+                 RowBox[{"Variance", "/@", 
+                  RowBox[{"Transpose", "@", "datax"}]}], "]"}], "/", 
+                RowBox[{"Variance", "[", 
+                 RowBox[{"Total", "/@", "datax"}], "]"}]}]}], ")"}]}]}], 
+           "}"}]}]}]}], ";", "\n", 
+       RowBox[{"Transpose", "@", 
+        RowBox[{"{", 
+         RowBox[{"varstring", ",", 
+          RowBox[{"myalpha", "[", 
+           RowBox[{"[", 
+            RowBox[{"1", ";;", 
+             RowBox[{"-", "2"}]}], "]"}], "]"}], ",", 
+          RowBox[{"PadRight", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"myalpha", "[", 
+              RowBox[{"[", 
+               RowBox[{"-", "1"}], "]"}], "]"}], "}"}], ",", 
+            RowBox[{"Length", "@", "varstring"}], ",", "\"\<\>\""}], "]"}]}], 
+         "}"}]}]}]}], "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworryhlm", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "datayy_", ",", "factornumx_", ",", 
+      "factornumm_", ",", "factornumy_", ",", "varstringx_", ",", 
+      "varstringm_", ",", "varstringy_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "datax", ",", "datam", ",", "datay", ",", "cronbach", ",", "numfx", 
+        ",", "numfm", ",", "numfy", ",", "seqx", ",", "seqm", ",", "seqy", 
+        ",", "newdatax", ",", "newdatam", ",", "newdatay", ",", "newdataxmy", 
+        ",", "mycortest"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"datax", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"dataxx", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "dataxx", ",", 
+          RowBox[{"dataxx", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"datam", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"datamm", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "datamm", ",", 
+          RowBox[{"datamm", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"datay", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"datayy", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "datayy", ",", 
+          RowBox[{"datayy", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"cronbach", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"ToString", "@", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{"{", 
+               RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datax", ",", "factornumx", ",", "varstringx"}], "]"}],
+               ",", "\n", 
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datam", ",", "factornumm", ",", "varstringm"}], "]"}],
+               ",", "\n", 
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datay", ",", "factornumy", ",", "varstringy"}], 
+               "]"}]}], "}"}], ",", "1"}], "]"}], ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"cronbach", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"cronbach", ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "\"\<Factor\>\"", ",", "\"\<Alpha\>\"", ",", 
+            "\"\<Total Alpha\>\""}], "}"}], ",", "1"}], "]"}]}], ";", "\n", 
+       RowBox[{"numfx", "=", 
+        RowBox[{"Length", "@", "factornumx"}]}], ";", "\n", 
+       RowBox[{"seqx", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumx"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatax", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Mean", "/@", 
+           RowBox[{"datax", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", 
+              RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+         "seqx"}]}], ";", "\n", 
+       RowBox[{"numfm", "=", 
+        RowBox[{"Length", "@", "factornumm"}]}], ";", "\n", 
+       RowBox[{"seqm", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumm"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatam", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Mean", "/@", 
+           RowBox[{"datam", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", 
+              RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+         "seqm"}]}], ";", "\n", 
+       RowBox[{"numfy", "=", 
+        RowBox[{"Length", "@", "factornumy"}]}], ";", "\n", 
+       RowBox[{"seqy", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumy"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatay", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Mean", "/@", 
+           RowBox[{"datay", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", 
+              RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+         "seqy"}]}], ";", "\n", 
+       RowBox[{"newdataxmy", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"newdatax", ",", "newdatam", ",", "newdatay"}], "}"}], ",",
+           "1"}], "]"}]}], ";", "\n", 
+       RowBox[{"mycortest", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "2", "]"}], "]"}], "<=", "0.05"}], ",", 
+             RowBox[{
+              RowBox[{"ToString", "@", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"#", "[", 
+                  RowBox[{"[", "1", "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "<>", 
+              "\"\<*\>\""}], ",", 
+             RowBox[{
+              RowBox[{"ToString", "@", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"#", "[", 
+                  RowBox[{"[", "1", "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "<>", 
+              "\"\< \>\""}]}], "]"}], "&"}], ",", 
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"PearsonCorrelationTest", "[", 
+               RowBox[{
+                RowBox[{"newdataxmy", "[", 
+                 RowBox[{"[", "i", "]"}], "]"}], ",", 
+                RowBox[{"newdataxmy", "[", 
+                 RowBox[{"[", "j", "]"}], "]"}], ",", "\"\<TestDataTable\>\"",
+                 ",", 
+                RowBox[{"VerifyTestAssumptions", "->", "None"}]}], "]"}], "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "1", ",", "2"}], "]"}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"2", ",", "3"}], "}"}], "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Length", "@", "newdataxmy"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", 
+              RowBox[{"Length", "@", "newdataxmy"}]}], "}"}]}], "]"}], ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"mycortest", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"MapThread", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", 
+               RowBox[{"#1", ",", "#2"}], "}"}]}], "&"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"Flatten", "@", 
+               RowBox[{"{", 
+                RowBox[{"varstringx", ",", "varstringm", ",", "varstringy"}], 
+                "}"}]}], ",", "mycortest"}], "}"}]}], "]"}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"\"\<\>\"", ",", 
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", 
+               RowBox[{"varstringx", ",", "varstringm", ",", "varstringy"}], 
+               "}"}]}]}], "}"}]}], ",", "1"}], "]"}]}], ";", "\n", "\n", "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"\"\<\\n\:76f8\:95dc\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"mycortest", "//", "TableForm"}], ",", 
+          "\"\<\\n\:968e\:5c64\:8ff4\:6b78\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"myhlm", "[", 
+           RowBox[{"newdatax", ",", "newdatam", ",", "newdatay"}], "]"}]}], 
+         "}"}], "//", "Column"}]}]}], "\n", "\n", "]"}]}], ";"}], "\n", "\n", 
+  
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"myanova", "[", 
+      RowBox[{"dataf_", ",", "datax_"}], "]"}], ":=", 
+     RowBox[{"Block", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "tempmsd", ",", "tempanova1", ",", "tempanova2", ",", "posthoc"}], 
+        "}"}], ",", "\n", 
+       RowBox[{
+        RowBox[{"tempmsd", "=", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"ToString", "@", 
+              RowBox[{"Floor", "@", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", 
+                 RowBox[{"1", ",", "1"}], "]"}], "]"}]}]}], ",", 
+             RowBox[{"Mean", "[", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", 
+                RowBox[{"All", ",", "2"}], "]"}], "]"}], "]"}], ",", 
+             RowBox[{"StandardDeviation", "[", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", 
+                RowBox[{"All", ",", "2"}], "]"}], "]"}], "]"}]}], "}"}], 
+           "&"}], "/@", 
+          RowBox[{"SortBy", "[", 
+           RowBox[{
+            RowBox[{"GatherBy", "[", 
+             RowBox[{
+              RowBox[{"Transpose", "@", 
+               RowBox[{"{", 
+                RowBox[{"dataf", ",", "datax"}], "}"}]}], ",", "First"}], 
+             "]"}], ",", "First"}], "]"}]}]}], ";", "\n", 
+        RowBox[{"tempanova1", "=", 
+         RowBox[{"ANOVA", "[", 
+          RowBox[{
+           RowBox[{"Transpose", "@", 
+            RowBox[{"{", 
+             RowBox[{"dataf", ",", "datax"}], "}"}]}], ",", 
+           RowBox[{"PostTests", "\[Rule]", "Bonferroni"}], ",", 
+           RowBox[{"CellMeans", "\[Rule]", "False"}]}], "]"}]}], ";", "\n", 
+        RowBox[{"tempanova2", "=", 
+         RowBox[{"Join", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"tempmsd", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], ",", 
+                RowBox[{"tempanova1", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"1", ",", "2", ",", "1", ",", "1", ",", 
+                   RowBox[{"{", 
+                    RowBox[{"4", ",", "5"}], "}"}]}], "]"}], "]"}]}], "}"}], 
+              "}"}]}], "}"}], ",", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"PadRight", "[", 
+              RowBox[{"#", ",", "5", ",", "\"\<\>\""}], "]"}], "&"}], "/@", 
+            RowBox[{"tempmsd", "[", 
+             RowBox[{"[", 
+              RowBox[{"2", ";;", 
+               RowBox[{"-", "1"}]}], "]"}], "]"}]}]}], "]"}]}], ";", "\n", 
+        RowBox[{"posthoc", "=", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Length", "@", 
+             RowBox[{"Flatten", "@", 
+              RowBox[{"tempanova1", "[", 
+               RowBox[{"[", 
+                RowBox[{
+                "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",", 
+                 "2"}], "]"}], "]"}]}]}], "\[GreaterEqual]", "2"}], ",", 
+           RowBox[{"Map", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"ToString", "[", 
+                 RowBox[{"Floor", "@", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "<>", 
+                "\"\<--\>\""}], 
+               RowBox[{"ToString", "[", 
+                RowBox[{"Floor", "@", 
+                 RowBox[{"#", "[", 
+                  RowBox[{"[", "2", "]"}], "]"}]}], "]"}]}], "&"}], ",", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Length", "@", 
+                 RowBox[{"Flatten", "@", 
+                  RowBox[{"tempanova1", "[", 
+                   RowBox[{"[", 
+                    RowBox[{
+                    "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", 
+                    ",", "2"}], "]"}], "]"}]}]}], "==", "2"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"tempanova1", "[", 
+                 RowBox[{"[", 
+                  RowBox[{
+                  "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",", 
+                   "2"}], "]"}], "]"}], "}"}], ",", 
+               RowBox[{"tempanova1", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                 "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",", 
+                  "2"}], "]"}], "]"}]}], "]"}]}], " ", "]"}], ",", 
+           RowBox[{"{", "\"\<\>\"", "}"}]}], "]"}]}], ";", "\n", 
+        RowBox[{"Transpose", "@", 
+         RowBox[{"Insert", "[", 
+          RowBox[{
+           RowBox[{"Transpose", "@", "tempanova2"}], ",", 
+           RowBox[{"PadRight", "[", 
+            RowBox[{"posthoc", ",", 
+             RowBox[{"Length", "@", "tempmsd"}], ",", "\"\<\>\""}], "]"}], 
+           ",", 
+           RowBox[{"-", "1"}]}], "]"}]}]}]}], "\n", "]"}]}], ";"}], "*)"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"myanova", "[", 
+     RowBox[{"dataf_", ",", "datax_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "tempmsd", ",", "tempanova1", ",", "tempanova2", ",", "posthoc"}], 
+       "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"tempmsd", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"ToString", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", 
+            RowBox[{"Mean", "[", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "2"}], "]"}], "]"}], "]"}], ",", 
+            RowBox[{"StandardDeviation", "[", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "2"}], "]"}], "]"}], "]"}]}], "}"}], "&"}],
+          "/@", 
+         RowBox[{"SortBy", "[", 
+          RowBox[{
+           RowBox[{"GatherBy", "[", 
+            RowBox[{
+             RowBox[{"Transpose", "@", 
+              RowBox[{"{", 
+               RowBox[{"dataf", ",", "datax"}], "}"}]}], ",", "First"}], 
+            "]"}], ",", "First"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"tempanova1", "=", 
+        RowBox[{"ANOVA", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "@", 
+           RowBox[{"{", 
+            RowBox[{"dataf", ",", "datax"}], "}"}]}], ",", 
+          RowBox[{"PostTests", "->", "Bonferroni"}], ",", 
+          RowBox[{"CellMeans", "->", "False"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"tempanova2", "=", 
+        RowBox[{"Join", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"Flatten", "@", 
+            RowBox[{"{", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"tempmsd", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], ",", 
+               RowBox[{"tempanova1", "[", 
+                RowBox[{"[", 
+                 RowBox[{"1", ",", "2", ",", "1", ",", "1", ",", 
+                  RowBox[{"{", 
+                   RowBox[{"4", ",", "5"}], "}"}]}], "]"}], "]"}]}], "}"}], 
+             "}"}]}], "}"}], ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"PadRight", "[", 
+             RowBox[{"#", ",", "5", ",", "\"\<\>\""}], "]"}], "&"}], "/@", 
+           RowBox[{"tempmsd", "[", 
+            RowBox[{"[", 
+             RowBox[{"2", ";;", 
+              RowBox[{"-", "1"}]}], "]"}], "]"}]}]}], "]"}]}], ";", "\n", 
+       RowBox[{"posthoc", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "@", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"tempanova1", "[", 
+              RowBox[{"[", 
+               RowBox[{
+               "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",", 
+                "2"}], "]"}], "]"}]}]}], ">=", "2"}], ",", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"ToString", "[", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], "]"}], "<>", "\"\<--\>\"", "<>", 
+              RowBox[{"ToString", "[", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "2", "]"}], "]"}], "]"}]}], "&"}], ",", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"Length", "@", 
+                RowBox[{"Flatten", "@", 
+                 RowBox[{"tempanova1", "[", 
+                  RowBox[{"[", 
+                   RowBox[{
+                   "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",",
+                     "2"}], "]"}], "]"}]}]}], "==", "2"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"tempanova1", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                 "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",", 
+                  "2"}], "]"}], "]"}], "}"}], ",", 
+              RowBox[{"tempanova1", "[", 
+               RowBox[{"[", 
+                RowBox[{
+                "2", ",", "2", ",", "1", ",", "2", ",", "1", ",", "1", ",", 
+                 "2"}], "]"}], "]"}]}], "]"}]}], " ", "]"}], ",", 
+          RowBox[{"{", "\"\<\>\"", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"Transpose", "@", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "@", "tempanova2"}], ",", 
+          RowBox[{"PadRight", "[", 
+           RowBox[{"posthoc", ",", 
+            RowBox[{"Length", "@", "tempmsd"}], ",", "\"\<\>\""}], "]"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}]}]}], "\n", "]"}]}], ";"}], 
+  "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworryanova", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "datayy_", ",", "factornumx_", ",", 
+      "factornumm_", ",", "factornumy_", ",", "varstringx_", ",", 
+      "varstringm_", ",", "varstringy_", ",", "norminalvariableso_", ",", 
+      "norminalstrings_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "datax", ",", "datam", ",", "datay", ",", "cronbach", ",", "numfx", 
+        ",", "numfm", ",", "numfy", ",", "seqx", ",", "seqm", ",", "seqy", 
+        ",", "newdatax", ",", "newdatam", ",", "newdatay", ",", "newdataxmy", 
+        ",", "numfn", ",", "dataanova", ",", "norminalvariables", ",", 
+        "norminalvariablesnum", ",", "norminalvariablepos"}], "}"}], ",", 
+      "\n", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"datax", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"dataxx", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "dataxx", ",", 
+          RowBox[{"dataxx", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"datam", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"datamm", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "datamm", ",", 
+          RowBox[{"datamm", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"datay", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"datayy", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "datayy", ",", 
+          RowBox[{"datayy", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "\n", 
+       RowBox[{"numfx", "=", 
+        RowBox[{"Length", "@", "factornumx"}]}], ";", "\n", 
+       RowBox[{"seqx", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumx"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatax", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"N", "@", "Mean"}], "/@", 
+             RowBox[{"datax", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+           "seqx"}], ",", 
+          RowBox[{"Mean", "/@", "dataxx"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"numfm", "=", 
+        RowBox[{"Length", "@", "factornumm"}]}], ";", "\n", 
+       RowBox[{"seqm", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumm"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatam", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"Mean", "/@", 
+             RowBox[{"datam", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+           "seqm"}], ",", 
+          RowBox[{"Mean", "/@", "datamm"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"numfy", "=", 
+        RowBox[{"Length", "@", "factornumy"}]}], ";", "\n", 
+       RowBox[{"seqy", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumy"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatay", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"Mean", "/@", 
+             RowBox[{"datay", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+           "seqy"}], ",", 
+          RowBox[{"Mean", "/@", "datayy"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"newdataxmy", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"newdatax", ",", "newdatam", ",", "newdatay"}], "}"}], ",",
+           "1"}], "]"}]}], ";", "\n", 
+       RowBox[{"numfy", "=", 
+        RowBox[{"Length", "@", "norminalstrings"}]}], ";", "\n", 
+       RowBox[{"norminalvariables", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"norminalvariableso", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", 
+          "norminalvariableso", ",", "norminalvariableso"}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"dataanova", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Transpose", "[", "norminalvariables", "]"}], ",", 
+          "newdataxmy"}], "}"}]}], ";", "\n", 
+       RowBox[{"dataanova", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{"myanova", "[", 
+             RowBox[{"i", ",", "j"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Transpose", "[", "norminalvariables", "]"}]}], "}"}], 
+            ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", "newdataxmy"}], "}"}]}], "]"}], ",", "2"}], 
+         "]"}]}], ";", "\n", "\n", 
+       RowBox[{"norminalvariablesnum", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "#", "]"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Tally", "[", "#", "]"}], "&"}], "/@", 
+           RowBox[{"Transpose", "[", "norminalvariables", "]"}]}], ")"}]}]}], 
+       ";", "\n", 
+       RowBox[{"dataanova", "=", 
+        RowBox[{"Join", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"Flatten", "@", 
+            RowBox[{"Table", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"PadRight", "[", 
+                 RowBox[{"#", ",", 
+                  RowBox[{"norminalvariablesnum", "[", 
+                   RowBox[{"[", "i", "]"}], "]"}], ",", "\"\<\>\""}], "]"}], 
+                "&"}], "/@", 
+               RowBox[{"Transpose", "[", 
+                RowBox[{"{", 
+                 RowBox[{"Flatten", "[", 
+                  RowBox[{"{", 
+                   RowBox[{
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringx", ",", "\"\<X\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}], ",", 
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringm", ",", "\"\<M\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}], ",", 
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringy", ",", "\"\<Y\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}]}], "}"}], "]"}], "}"}], 
+                "]"}]}], ",", 
+              RowBox[{"{", 
+               RowBox[{"i", ",", 
+                RowBox[{"Length", "@", "norminalvariablesnum"}]}], "}"}]}], 
+             "]"}]}], "}"}], ",", 
+          RowBox[{"Transpose", "@", "dataanova"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"norminalvariablepos", "=", 
+        RowBox[{
+         RowBox[{"\"\<\>\"", "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", 
+           RowBox[{"dataanova", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}]}], ";", "\n", 
+       RowBox[{
+        RowBox[{"norminalvariablepos", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{"Flatten", "[", 
+            RowBox[{"1", "+", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", 
+               RowBox[{"Accumulate", "[", 
+                RowBox[{"norminalvariablesnum", "*", 
+                 RowBox[{"Length", "[", 
+                  RowBox[{"Flatten", "[", 
+                   RowBox[{"{", 
+                    RowBox[{
+                    "varstringx", ",", "varstringm", ",", "varstringy"}], 
+                    "}"}], "]"}], "]"}]}], "]"}]}], "}"}]}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"1", ";;", 
+             RowBox[{"-", "2"}]}], "]"}], "]"}], "]"}], "]"}], "=", 
+        "norminalstrings"}], ";", "\n", 
+       RowBox[{
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"NumberForm", "[", 
+              RowBox[{"#", ",", 
+               RowBox[{"{", 
+                RowBox[{"10", ",", "3"}], "}"}]}], "]"}], "&"}], ",", 
+            RowBox[{"Transpose", "@", 
+             RowBox[{"Join", "[", 
+              RowBox[{
+               RowBox[{"{", "norminalvariablepos", "}"}], ",", 
+               RowBox[{"N", "@", "dataanova"}]}], "]"}]}], ",", 
+            RowBox[{"{", "2", "}"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "\"\<\:4eba\:53e3\:7d71\:8a08\:8b8a\:6578\>\"", ",", 
+            "\"\<\:56e0\:7d20\>\"", ",", "\"\<\:7d44\:5225\>\"", ",", 
+            "\"\<\:5e73\:5747\:6578\>\"", ",", "\"\<\:6a19\:6e96\:5dee\>\"", 
+            ",", "\"\<F\:503c\>\"", ",", "\"\<P \:503c\>\"", ",", 
+            "\"\<\:4e8b\:5f8c\:6bd4\:8f03\>\""}], "}"}], ",", "1"}], "]"}], "//",
+         "TableForm"}]}]}], "\n", " ", "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ItemAnalysisBackup", "[", "data_", "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"varname", ",", 
+        RowBox[{"mydata", "=", "data"}], ",", "sum", ",", "lower", ",", 
+        "upper", ",", "testdata", ",", "testdatalow", ",", "testdatahigh", 
+        ",", "itemdata"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"varname", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"\"\<V\>\"", "<>", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"#", "<=", "9"}], ",", 
+             RowBox[{"\"\<0\>\"", "<>", 
+              RowBox[{"ToString", "[", "#", "]"}]}], ",", 
+             RowBox[{"ToString", "[", "#", "]"}]}], "]"}]}], "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", 
+           RowBox[{"mydata", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}]}], ";", "\n", 
+       RowBox[{"sum", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"#", ",", 
+             RowBox[{"Total", "[", "#", "]"}]}], "}"}]}], "&"}], "/@", 
+         "mydata"}]}], ";", "\n", 
+       RowBox[{"lower", "=", 
+        RowBox[{"Quantile", "[", 
+         RowBox[{
+          RowBox[{"sum", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}], ",", "0.27"}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"upper", "=", 
+        RowBox[{"Quantile", "[", 
+         RowBox[{
+          RowBox[{"sum", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}], ",", "0.73"}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"testdata", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"sum", "[", 
+             RowBox[{"[", "#", "]"}], "]"}], ",", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"sum", "[", 
+                RowBox[{"[", 
+                 RowBox[{"#", ",", 
+                  RowBox[{"-", "1"}]}], "]"}], "]"}], ">=", "upper"}], ",", 
+              "2", ",", 
+              RowBox[{"If", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"sum", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"#", ",", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], "<=", "lower"}], ",", 
+                "1", ",", "0"}], "]"}]}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", "sum"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"testdata", "=", 
+        RowBox[{"GatherBy", "[", 
+         RowBox[{"testdata", ",", "Last"}], "]"}]}], ";", "\n", 
+       RowBox[{"testdatalow", "=", 
+        RowBox[{
+         RowBox[{"Cases", "[", 
+          RowBox[{"testdata", ",", 
+           RowBox[{"{", 
+            RowBox[{"a_", ",", "1"}], "}"}], ",", "Infinity"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"testdatahigh", "=", 
+        RowBox[{
+         RowBox[{"Cases", "[", 
+          RowBox[{"testdata", ",", 
+           RowBox[{"{", 
+            RowBox[{"a_", ",", "2"}], "}"}], ",", "Infinity"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"itemdata", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"varname", "[", 
+                RowBox[{"[", "#", "]"}], "]"}], ",", 
+               "\"\<\:4f4e\:5206\:7d44\>\"", ",", 
+               RowBox[{"Length", "@", 
+                RowBox[{"testdatalow", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"All", ",", "#"}], "]"}], "]"}]}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"N", "@", 
+                  RowBox[{"Mean", "@", 
+                   RowBox[{"testdatalow", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"N", "@", 
+                  RowBox[{"StandardDeviation", "@", 
+                   RowBox[{"testdatalow", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{
+                   RowBox[{"NumberForm", "[", 
+                    RowBox[{
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+                   RowBox[{"NumberForm", "[", 
+                    RowBox[{
+                    RowBox[{"If", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], "<", "0.00001"}], ",", 
+                    "0", ",", 
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}]}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"5", ",", "4"}], "}"}]}], "]"}]}], "}"}], "&"}], "/@", 
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{"TTest", "[", 
+                   RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"testdatalow", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}], ",", 
+                    RowBox[{"testdatahigh", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}], "}"}], ",", 
+                    "0", ",", "\"\<TestDataTable\>\"", ",", 
+                    RowBox[{
+                    "VerifyTestAssumptions", "->", 
+                    "\"\<EqualVariance\>\""}]}], "]"}], "[", 
+                  RowBox[{"[", 
+                   RowBox[{"1", ",", "1", ",", "2", ",", 
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "3"}], "}"}]}], "]"}], "]"}], "}"}]}], 
+               ",", "\n", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"N", "@", 
+                  RowBox[{"Correlation", "[", 
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"data", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}], "[", 
+                    RowBox[{"[", 
+                    RowBox[{"2", ";;", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], ",", 
+                    RowBox[{"Total", "/@", 
+                    RowBox[{"data", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"2", ";;", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}]}]}], "]"}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "\n", "\n", 
+              "}"}]}], ",", 
+            RowBox[{"{", 
+             RowBox[{"\"\<\>\"", ",", "\"\<\:9ad8\:5206\:7d44\>\"", ",", 
+              RowBox[{"Length", "@", 
+               RowBox[{"testdatahigh", "[", 
+                RowBox[{"[", 
+                 RowBox[{"All", ",", "#"}], "]"}], "]"}]}], ",", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{
+                RowBox[{"N", "@", 
+                 RowBox[{"Mean", "@", 
+                  RowBox[{"testdatahigh", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{
+                RowBox[{"N", "@", 
+                 RowBox[{"StandardDeviation", "@", 
+                  RowBox[{"testdatahigh", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", "\"\<\>\"", 
+              ",", "\"\<\>\"", ",", "\"\<\>\""}], "}"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", "varname"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"TableForm", "[", 
+        RowBox[{
+         RowBox[{"Flatten", "[", 
+          RowBox[{"itemdata", ",", "1"}], "]"}], ",", 
+         RowBox[{"TableHeadings", "->", 
+          RowBox[{"{", 
+           RowBox[{"None", ",", 
+            RowBox[{"{", 
+             RowBox[{
+             "\"\<\:984c\:9805\>\"", ",", "\"\<\:7d44\:5225\>\"", ",", 
+              "\"\<\:500b\:6578\>\"", ",", "\"\<\:5e73\:5747\:6578\>\"", ",", 
+              "\"\<\:6a19\:6e96\:5dee\>\"", ",", "\"\<CR\>\"", ",", 
+              "\"\<P-Vale\>\"", ",", 
+              "\"\<\:8207\:7e3d\:5206\:76f8\:95dc\:4fc2\:6578\>\""}], "}"}]}],
+            "}"}]}]}], "]"}]}]}], "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ItemAnalysis", "[", 
+     RowBox[{"data_", ",", "factornum_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"varname", ",", 
+        RowBox[{"mydata", "=", "data"}], ",", "sum", ",", "lower", ",", 
+        "upper", ",", "testdata", ",", "testdatalow", ",", "testdatahigh", 
+        ",", "itemdata", ",", "itemcor"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"varname", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"\"\<V\>\"", "<>", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"#", "<=", "9"}], ",", 
+             RowBox[{"\"\<0\>\"", "<>", 
+              RowBox[{"ToString", "[", "#", "]"}]}], ",", 
+             RowBox[{"ToString", "[", "#", "]"}]}], "]"}]}], "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", 
+           RowBox[{"mydata", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}]}], ";", "\n", 
+       RowBox[{"sum", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"#", ",", 
+             RowBox[{"Total", "[", "#", "]"}]}], "}"}]}], "&"}], "/@", 
+         "mydata"}]}], ";", "\n", 
+       RowBox[{"lower", "=", 
+        RowBox[{"Quantile", "[", 
+         RowBox[{
+          RowBox[{"sum", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}], ",", "0.27"}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"upper", "=", 
+        RowBox[{"Quantile", "[", 
+         RowBox[{
+          RowBox[{"sum", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}], ",", "0.73"}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"testdata", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"sum", "[", 
+             RowBox[{"[", "#", "]"}], "]"}], ",", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"sum", "[", 
+                RowBox[{"[", 
+                 RowBox[{"#", ",", 
+                  RowBox[{"-", "1"}]}], "]"}], "]"}], ">=", "upper"}], ",", 
+              "2", ",", 
+              RowBox[{"If", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"sum", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"#", ",", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], "<=", "lower"}], ",", 
+                "1", ",", "0"}], "]"}]}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", "sum"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"testdata", "=", 
+        RowBox[{"GatherBy", "[", 
+         RowBox[{"testdata", ",", "Last"}], "]"}]}], ";", "\n", 
+       RowBox[{"testdatalow", "=", 
+        RowBox[{
+         RowBox[{"Cases", "[", 
+          RowBox[{"testdata", ",", 
+           RowBox[{"{", 
+            RowBox[{"a_", ",", "1"}], "}"}], ",", "Infinity"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"testdatahigh", "=", 
+        RowBox[{
+         RowBox[{"Cases", "[", 
+          RowBox[{"testdata", ",", 
+           RowBox[{"{", 
+            RowBox[{"a_", ",", "2"}], "}"}], ",", "Infinity"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"itemcor", "=", 
+        RowBox[{"ItemAnalysisCor", "[", 
+         RowBox[{"data", ",", "factornum"}], "]"}]}], ";", "\n", 
+       RowBox[{"itemdata", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"varname", "[", 
+                RowBox[{"[", "#", "]"}], "]"}], ",", 
+               "\"\<\:4f4e\:5206\:7d44\>\"", ",", 
+               RowBox[{"Length", "@", 
+                RowBox[{"testdatalow", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"All", ",", "#"}], "]"}], "]"}]}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"N", "@", 
+                  RowBox[{"Mean", "@", 
+                   RowBox[{"testdatalow", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"N", "@", 
+                  RowBox[{"StandardDeviation", "@", 
+                   RowBox[{"testdatalow", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{
+                   RowBox[{"NumberForm", "[", 
+                    RowBox[{
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+                   RowBox[{"NumberForm", "[", 
+                    RowBox[{
+                    RowBox[{"If", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], "<", "0.00001"}], ",", 
+                    "0", ",", 
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}]}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"5", ",", "4"}], "}"}]}], "]"}]}], "}"}], "&"}], "/@", 
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{"TTest", "[", 
+                   RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"testdatalow", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}], ",", 
+                    RowBox[{"testdatahigh", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}], "}"}], ",", 
+                    "0", ",", "\"\<TestDataTable\>\"", ",", 
+                    RowBox[{
+                    "VerifyTestAssumptions", "->", 
+                    "\"\<EqualVariance\>\""}]}], "]"}], "[", 
+                  RowBox[{"[", 
+                   RowBox[{"1", ",", "1", ",", "2", ",", 
+                    RowBox[{"{", 
+                    RowBox[{"2", ",", "3"}], "}"}]}], "]"}], "]"}], "}"}]}], 
+               ",", "\n", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"itemcor", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"1", ",", "#"}], "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}], ",", "\n", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"itemcor", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"2", ",", "#"}], "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}], ",", "\n", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"N", "@", 
+                  RowBox[{"Correlation", "[", 
+                   RowBox[{
+                    RowBox[{"data", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}], ",", 
+                    RowBox[{"Total", "/@", "data"}]}], "]"}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "\n", "\n", 
+              "}"}]}], ",", 
+            RowBox[{"{", 
+             RowBox[{"\"\<\>\"", ",", "\"\<\:9ad8\:5206\:7d44\>\"", ",", 
+              RowBox[{"Length", "@", 
+               RowBox[{"testdatahigh", "[", 
+                RowBox[{"[", 
+                 RowBox[{"All", ",", "#"}], "]"}], "]"}]}], ",", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{
+                RowBox[{"N", "@", 
+                 RowBox[{"Mean", "@", 
+                  RowBox[{"testdatahigh", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{
+                RowBox[{"N", "@", 
+                 RowBox[{"StandardDeviation", "@", 
+                  RowBox[{"testdatahigh", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"All", ",", "#"}], "]"}], "]"}]}]}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"5", ",", "4"}], "}"}]}], "]"}], ",", "\"\<\>\"", 
+              ",", "\"\<\>\"", ",", "\"\<\>\""}], "}"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", "varname"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"TableForm", "[", 
+        RowBox[{
+         RowBox[{"Flatten", "[", 
+          RowBox[{"itemdata", ",", "1"}], "]"}], ",", 
+         RowBox[{"TableHeadings", "->", 
+          RowBox[{"{", 
+           RowBox[{"None", ",", 
+            RowBox[{"{", 
+             RowBox[{
+             "\"\<\:984c\:9805\>\"", ",", "\"\<\:7d44\:5225\>\"", ",", 
+              "\"\<\:500b\:6578\>\"", ",", "\"\<\:5e73\:5747\:6578\>\"", ",", 
+              "\"\<\:6a19\:6e96\:5dee\>\"", ",", "\"\<CR\>\"", ",", 
+              "\"\<P-Vale\>\"", ",", 
+              "\"\<\:8207\:5206\:91cf\:8868\:7e3d\:5206\:76f8\:95dc\:4fc2\
+\:6578\>\"", ",", 
+              "\"\<\:8207\:975e\:8a72\:984c\:9805\:7e3d\:5206\:76f8\:95dc\
+\:4fc2\:6578\>\"", ",", 
+              "\"\<\:8207\:7e3d\:5206\:76f8\:95dc\:4fc2\:6578\>\""}], "}"}]}],
+            "}"}]}]}], "]"}]}]}], "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ItemAnalysisCor", "[", 
+     RowBox[{"data_", ",", "factornum_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"numx", ",", "numf", ",", "seq", ",", "newdata"}], "}"}], ",", 
+      "\n", 
+      RowBox[{
+       RowBox[{"numx", "=", 
+        RowBox[{"Length", "@", "data"}]}], ";", "\n", 
+       RowBox[{"numf", "=", 
+        RowBox[{"Length", "@", "factornum"}]}], ";", "\n", 
+       RowBox[{"seq", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornum"}], "}"}]}], "]"}], ",", "2", ",", 
+           "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdata", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"data", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}], "&"}], "/@", 
+         "seq"}]}], ";", "\n", 
+       RowBox[{"newdata", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Flatten", "@", 
+            RowBox[{"{", 
+             RowBox[{"#", ",", 
+              RowBox[{"Total", "[", "#", "]"}]}], "}"}]}], "&"}], ",", 
+          "newdata", ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Flatten", "@", 
+          RowBox[{"N", "@", 
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{"Correlation", "[", 
+              RowBox[{
+               RowBox[{"newdata", "[", 
+                RowBox[{"[", 
+                 RowBox[{"i", ",", "All", ",", "j"}], "]"}], "]"}], ",", 
+               RowBox[{"newdata", "[", 
+                RowBox[{"[", 
+                 RowBox[{"i", ",", "All", ",", 
+                  RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"i", ",", 
+               RowBox[{"Length", "@", "factornum"}]}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"j", ",", 
+               RowBox[{"factornum", "[", 
+                RowBox[{"[", "i", "]"}], "]"}]}], "}"}]}], "]"}]}]}], ",", 
+         "\n", 
+         RowBox[{"N", "@", 
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"N", "@", "Correlation"}], "@@", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"data", "[", 
+                RowBox[{"[", 
+                 RowBox[{"All", ",", "i"}], "]"}], "]"}], ",", 
+               RowBox[{"Total", "/@", 
+                RowBox[{"data", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"All", ",", 
+                   RowBox[{"Drop", "[", 
+                    RowBox[{
+                    RowBox[{"Range", "[", 
+                    RowBox[{"Total", "@", "factornum"}], "]"}], ",", 
+                    RowBox[{"{", "i", "}"}]}], "]"}]}], "]"}], "]"}]}]}], 
+              "}"}]}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Total", "@", "factornum"}]}], "}"}]}], "]"}]}]}], 
+        "}"}]}]}], "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworrysem", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "datayy_", ",", "factornumx_", ",", 
+      "factornumm_", ",", "factornumy_", ",", "varstringx_", ",", 
+      "varstringm_", ",", "varstringy_", ",", "semmicode_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", "\n", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "test", ",", "test1", ",", "test2", ",", "test3", ",", "semdmodel", 
+        ",", "cfi", ",", "chi", ",", "df", ",", "chipv", ",", "rmsea", ",", 
+        "xxrange", ",", "mmrange", ",", "yyrange", ",", "xloading", ",", 
+        "mloading", ",", "yloading", ",", "XX", ",", "YY", ",", "MM", ",", 
+        "regcoef", ",", "loadings", ",", "myreport", ",", "semdmodel2", ",", 
+        "nnfi", ",", "gfi", ",", "agfi"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"test1", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"Mean", ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"dataxx", "[", 
+               RowBox[{"[", 
+                RowBox[{"z", ",", "#"}], "]"}], "]"}], "&"}], "/@", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Complement", "[", 
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "2", "]"}], "]"}], ",", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "&"}], "/@", 
+               RowBox[{"Partition", "[", 
+                RowBox[{
+                 RowBox[{"Insert", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Range", "[", "#", "]"}], "&"}], "/@", 
+                    RowBox[{"Accumulate", "@", "factornumx"}]}], ",", 
+                   RowBox[{"{", "}"}], ",", "1"}], "]"}], ",", "2", ",", 
+                 "1"}], "]"}]}], ")"}]}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"z", ",", 
+            RowBox[{"Length", "@", "dataxx"}]}], "}"}]}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"test2", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"Mean", ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"datamm", "[", 
+               RowBox[{"[", 
+                RowBox[{"z", ",", "#"}], "]"}], "]"}], "&"}], "/@", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Complement", "[", 
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "2", "]"}], "]"}], ",", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "&"}], "/@", 
+               RowBox[{"Partition", "[", 
+                RowBox[{
+                 RowBox[{"Insert", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Range", "[", "#", "]"}], "&"}], "/@", 
+                    RowBox[{"Accumulate", "@", "factornumm"}]}], ",", 
+                   RowBox[{"{", "}"}], ",", "1"}], "]"}], ",", "2", ",", 
+                 "1"}], "]"}]}], ")"}]}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"z", ",", 
+            RowBox[{"Length", "@", "datamm"}]}], "}"}]}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"test3", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"Mean", ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"datayy", "[", 
+               RowBox[{"[", 
+                RowBox[{"z", ",", "#"}], "]"}], "]"}], "&"}], "/@", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Complement", "[", 
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "2", "]"}], "]"}], ",", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "&"}], "/@", 
+               RowBox[{"Partition", "[", 
+                RowBox[{
+                 RowBox[{"Insert", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Range", "[", "#", "]"}], "&"}], "/@", 
+                    RowBox[{"Accumulate", "@", "factornumy"}]}], ",", 
+                   RowBox[{"{", "}"}], ",", "1"}], "]"}], ",", "2", ",", 
+                 "1"}], "]"}]}], ")"}]}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"z", ",", 
+            RowBox[{"Length", "@", "datayy"}]}], "}"}]}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"test", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"Flatten", "/@", 
+           RowBox[{"N", "@", 
+            RowBox[{"Transpose", "@", 
+             RowBox[{"{", 
+              RowBox[{"test1", ",", "test2", ",", "test3"}], "}"}]}]}]}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"varstringx", ",", "varstringm", ",", "varstringy"}], 
+            "}"}]}], ",", "1"}], "]"}]}], ";", "\n", 
+       RowBox[{"Export", "[", 
+        RowBox[{"\"\<test.csv\>\"", ",", "test"}], "]"}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:5404\:6982\:5ff5\:5e73\:5747\:6578\:53ca\:6a19\:6e96\:5dee\\n\>\
+\""}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"Insert", "[", 
+          RowBox[{
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"test", "[", 
+                RowBox[{"[", 
+                 RowBox[{"1", ",", "z"}], "]"}], "]"}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"Mean", "[", 
+                  RowBox[{
+                   RowBox[{"test", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}], "[", 
+                   RowBox[{"[", 
+                    RowBox[{"2", ";;", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "3"}], "}"}]}], "]"}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"StandardDeviation", "[", 
+                  RowBox[{
+                   RowBox[{"test", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}], "[", 
+                   RowBox[{"[", 
+                    RowBox[{"2", ";;", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "3"}], "}"}]}], "]"}]}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"z", ",", 
+               RowBox[{"Length", "[", 
+                RowBox[{"test", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], "]"}]}], "}"}]}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<\:6982\:5ff5\>\"", ",", "\"\<\:5e73\:5747\:6578\>\"", ",", 
+             "\"\<\:6a19\:6e96\:5dee\>\""}], "}"}], ",", "1"}], "]"}]}]}], 
+       ";", "\n", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", 
+       RowBox[{"semdmodel", "=", 
+        RowBox[{"REvaluate", "[", 
+         RowBox[{"\"\<{\n\tda=data.frame(read.csv(\\\"\>\"", "<>", 
+          RowBox[{"StringReplace", "[", 
+           RowBox[{
+            RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+            RowBox[{"\"\<\\\\\>\"", "->", "\"\<\\\\\\\\\>\""}]}], "]"}], 
+          "<>", "\"\<test.csv\\\", header=T, sep=\\\",\\\"))\n\tmodel<-'\n\t# \
+measurement model\n\t\tXX=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringx", "]"}]}], "<>", 
+          "\"\<\n\t\tMM=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringm", "]"}]}], "<>", 
+          "\"\<\n\t\tYY=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringy", "]"}]}], "<>", "\"\<\\n\>\"", "<>",
+           "semmicode", "<>", "\"\<\\n\>\"", "<>", 
+          "\"\<\n\t# regressions\n\t\tMM~XX\n\t\tYY~MM+XX\n\t'\n\tfit <- \
+sem(model, data=da, estimator=\\\"\>\"", " ", "<>", "semmethod", "<>", 
+          "\"\<\\\")\n\tcapture.output(print(summary(fit, fit.measures=TRUE, \
+standardized=TRUE)))\n\t}\>\""}], "]"}]}], ";", "\n", 
+       RowBox[{"$sem", "=", "semdmodel"}], ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"semdmodel2", "=", 
+          RowBox[{"REvaluate", "[", "\"\< fitMeasures(fit)\>\"", "]"}]}], ";",
+          "\n", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+            "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+          RowBox[{
+           RowBox[{"semdmodel2", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{
+             "3", ",", "4", ",", "5", ",", "9", ",", "11", ",", "23", ",", 
+              RowBox[{"-", "5"}], ",", 
+              RowBox[{"-", "4"}]}], "}"}], "]"}], "]"}]}], ";"}], "\n", 
+        "*)"}], "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+         "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+          "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<fitMeasures(fit,c(\\\"chisq\\\",\\\"df\\\",\\\"pvalue\\\",\\\"\
+cfi\\\",\\\"nfi\\\",\\\"rmsea\\\",\\\"gfi\\\",\\\"agfi\\\"))\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"$semmi", "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<{\n\tmi <- modindices(fit)\n\tmi[mi$op == \\\"~~\\\",]\n\t\
+subset(mi[mi$op == \\\"~~\\\",], mi > 5)\n\t}\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\\n\>\""}], 
+       ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "@", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:5361\:65b9\:503c\>\"", ",", "\"\<\:81ea\:7531\:5ea6\>\"",
+                ",", "\"\<P-value\>\"", ",", 
+               "\"\<\:5361\:65b9\:503c/\:81ea\:7531\:5ea6\>\"", ",", 
+               "\"\<CFI\>\"", ",", "\"\<NFI\>\"", ",", "\"\<RMSEA\>\"", ",", 
+               "\"\<GFI\>\"", ",", "\"\<AGFI\>\""}], "}"}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"NumberForm", "[", 
+                RowBox[{"#", ",", 
+                 RowBox[{"{", 
+                  RowBox[{"8", ",", "3"}], "}"}]}], "]"}], "&"}], "/@", 
+              RowBox[{"{", 
+               RowBox[{"chi", ",", "df", ",", "chipv", ",", 
+                RowBox[{"chi", "/", "df"}], ",", "cfi", ",", "nnfi", ",", 
+                "rmsea", ",", "gfi", ",", "agfi"}], "}"}]}]}], "}"}]}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\:6307\:6a19\>\"", ",", 
+               "\"\<\>\""}], "}"}]}], "}"}]}]}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6Modification \
+Indices\:503c\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"SortBy", "[", 
+          RowBox[{
+           RowBox[{"Transpose", "[", "$semmi", "]"}], ",", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "4", "]"}], "]"}], "&"}]}], "]"}]}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", 
+       RowBox[{"xxrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<XX\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"mmrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<MM\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"yyrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<YY\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"xxrange", "=", 
+        RowBox[{
+         RowBox[{"xxrange", "+", "1"}], ";;", 
+         RowBox[{"xxrange", "+", 
+          RowBox[{"Length", "@", "factornumx"}]}]}]}], ";", "\n", 
+       RowBox[{"mmrange", "=", 
+        RowBox[{
+         RowBox[{"mmrange", "+", "1"}], ";;", 
+         RowBox[{"mmrange", "+", 
+          RowBox[{"Length", "@", "factornumm"}]}]}]}], ";", "\n", 
+       RowBox[{"yyrange", "=", 
+        RowBox[{
+         RowBox[{"yyrange", "+", "1"}], ";;", 
+         RowBox[{"yyrange", "+", 
+          RowBox[{"Length", "@", "factornumy"}]}]}]}], ";", "\n", "\n", 
+       RowBox[{"xloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"XX", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "xxrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"mloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"MM", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "mmrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"yloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"YY", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "yyrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"loadings", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"xloading", ",", "mloading", ",", "yloading"}], "}"}], ",",
+           "1"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"Position", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringContainsQ", "[", 
+                 RowBox[{"#", ",", "\"\<MM ~\>\""}], "]"}], "&"}], "/@", 
+               "semdmodel"}], ",", "True"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "1"}], ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Position", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringContainsQ", "[", 
+                 RowBox[{"#", ",", "\"\<YY ~\>\""}], "]"}], "&"}], "/@", 
+               "semdmodel"}], ",", "True"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "1"}], ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Position", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringContainsQ", "[", 
+                 RowBox[{"#", ",", "\"\<YY ~\>\""}], "]"}], "&"}], "/@", 
+               "semdmodel"}], ",", "True"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "2"}]}], "}"}]}], 
+       ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"regcoef", "=", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"regcoef", "+", "2"}], ",", 
+            RowBox[{"regcoef", "+", "4"}], ",", 
+            RowBox[{"regcoef", "+", "5"}]}], "}"}]}], ";", "\n", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Print", "@", 
+            RowBox[{"Select", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{
+               RowBox[{"#", "\[NotEqual]", "\"\<\>\""}], "&"}], ",", 
+              "Infinity"}], "]"}]}], "&"}], "/@", 
+          RowBox[{"StringSplit", "[", 
+           RowBox[{
+            RowBox[{"semdmodel", "[", 
+             RowBox[{"[", "regcoef", "]"}], "]"}], ",", "\"\< \>\""}], 
+           "]"}]}], ";"}], "\n", "*)"}], "\n", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"Select", "[", 
+            RowBox[{"#", ",", 
+             RowBox[{
+              RowBox[{"#", "!=", "\"\<\>\""}], "&"}], ",", "Infinity"}], 
+            "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{"1", ",", 
+              RowBox[{"-", "1"}], ",", 
+              RowBox[{"-", "3"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+         RowBox[{"StringSplit", "[", 
+          RowBox[{
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "regcoef", "]"}], "]"}], ",", "\"\< \>\""}], 
+          "]"}]}]}], ";", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"regcoef", "[", 
+               RowBox[{"[", 
+                RowBox[{"1", ",", "1"}], "]"}], "]"}]}], "->", "MM"}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"regcoef", "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "2"}], "]"}], "]"}]}], ",", 
+            RowBox[{"regcoef", "[", 
+             RowBox[{"[", 
+              RowBox[{"1", ",", "3"}], "]"}], "]"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"regcoef", "[", 
+               RowBox[{"[", 
+                RowBox[{"2", ",", "1"}], "]"}], "]"}]}], "->", "YY"}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"regcoef", "[", 
+              RowBox[{"[", 
+               RowBox[{"2", ",", "2"}], "]"}], "]"}]}], ",", 
+            RowBox[{"regcoef", "[", 
+             RowBox[{"[", 
+              RowBox[{"2", ",", "3"}], "]"}], "]"}]}], "}"}], ",", "\n", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"regcoef", "[", 
+               RowBox[{"[", 
+                RowBox[{"3", ",", "1"}], "]"}], "]"}]}], "->", "YY"}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"regcoef", "[", 
+              RowBox[{"[", 
+               RowBox[{"3", ",", "2"}], "]"}], "]"}]}], ",", 
+            RowBox[{"regcoef", "[", 
+             RowBox[{"[", 
+              RowBox[{"3", ",", "3"}], "]"}], "]"}]}], "}"}]}], "}"}]}], ";", 
+       "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"loadings", ",", "regcoef"}], "}"}], ",", "1"}], "]"}]}], 
+       ";", "\n", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:6e2c\:91cf\:6a21\:5f0f\:8207\:7d50\:69cb\:6a21\:5f0f\:6aa2\
+\:5b9a\:5f59\:6574\:8868\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"Insert", "[", 
+          RowBox[{"myreport", ",", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<\:8def\:5f91\>\"", ",", 
+             "\"\<\:6a19\:6e96\:5316\:8def\:5f91\:4fc2\:6578\>\"", ",", 
+             "\"\<P-value\>\""}], "}"}], ",", "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\\n\:7814\:7a76\:67b6\:69cb\:8def\:5f91\:5716\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Graph", "[", "\n", 
+         RowBox[{
+          RowBox[{"Flatten", "[", 
+           RowBox[{"Flatten", "@", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"XX", "->", "#"}], "&"}], "/@", 
+               RowBox[{"ToExpression", "@", "varstringx"}]}], ",", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"MM", "->", "#"}], "&"}], "/@", "varstringm"}], ",", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"YY", "->", "#"}], "&"}], "/@", "varstringy"}], ",", 
+              RowBox[{"XX", "->", "MM"}], ",", 
+              RowBox[{"MM", "->", "YY"}], ",", 
+              RowBox[{"XX", "->", "YY"}]}], "}"}]}], "]"}], ",", "\n", 
+          RowBox[{"VertexSize", "->", "0.5"}], ",", 
+          RowBox[{"VertexShapeFunction", "->", 
+           RowBox[{"(", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", "\n", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"ToExpression", "[", "#", "]"}], "->", 
+                  "\"\<Rectangle\>\""}], "&"}], "/@", 
+                RowBox[{"Flatten", "[", 
+                 RowBox[{"{", 
+                  RowBox[{
+                  "varstringx", ",", "varstringm", ",", "varstringy"}], "}"}],
+                  "]"}]}], ",", "\n", 
+               RowBox[{"XX", "->", "\"\<Circle\>\""}], ",", 
+               RowBox[{"MM", "->", "\"\<Circle\>\""}], ",", 
+               RowBox[{"YY", "->", "\"\<Circle\>\""}]}], "}"}]}], ")"}]}], 
+          ",", "\n", 
+          RowBox[{"GraphLayout", "->", "\"\<SpringEmbedding\>\""}], ",", "\n", 
+          RowBox[{"VertexLabels", "->", 
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{"i", "->", 
+              RowBox[{"Placed", "[", 
+               RowBox[{"i", ",", "Center"}], "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"i", ",", 
+               RowBox[{"Flatten", "@", 
+                RowBox[{"{", 
+                 RowBox[{
+                 "XX", ",", "YY", ",", "MM", ",", "varstringx", ",", 
+                  "varstringm", ",", "varstringy"}], "}"}]}]}], "}"}]}], 
+            "]"}]}], ",", "\n", 
+          RowBox[{"EdgeLabels", "->", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], ")"}], "->", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "2", "]"}], "]"}]}], "&"}], "/@", 
+             RowBox[{"myreport", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"{", 
+                 RowBox[{"1", ",", "2"}], "}"}]}], "]"}], "]"}]}], ")"}]}]}], 
+         "]"}]}], ";", "\n", "\n", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ToExpression", "[", 
+           RowBox[{
+            RowBox[{"Select", "[", 
+             RowBox[{"myreport", ",", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], "==", 
+                RowBox[{"Rule", "[", 
+                 RowBox[{"XX", ",", "YY"}], "]"}]}], "&"}]}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", 
+              RowBox[{"-", "1"}]}], "]"}], "]"}], "]"}], "<", "0.05"}], ",", 
+         RowBox[{"Break", "[", "]"}]}], "]"}], ";", "\n", "\n", 
+       RowBox[{"(*", " ", "\:5b8c\:5168\:4e2d\:4ecb\:6a21\:578b", " ", "*)"}],
+        "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<XX->YY \:4e0d\:986f\:8457\:ff0c\:4ee5\:4e0b\:70ba\:5b8c\:5168\
+\:4e2d\:4ecb\:6a21\:578b\\n\>\""}], ";", "\n", 
+       RowBox[{"semdmodel", "=", 
+        RowBox[{"REvaluate", "[", 
+         RowBox[{"\"\<{\n\tda=data.frame(read.csv(\\\"\>\"", "<>", 
+          RowBox[{"StringReplace", "[", 
+           RowBox[{
+            RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+            RowBox[{"\"\<\\\\\>\"", "->", "\"\<\\\\\\\\\>\""}]}], "]"}], 
+          "<>", "\"\<test.csv\\\", header=T, sep=\\\",\\\"))\n\tmodel<-'\n\t# \
+measurement model\n\t\tXX=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringx", "]"}]}], "<>", 
+          "\"\<\n\t\tMM=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringm", "]"}]}], "<>", 
+          "\"\<\n\t\tYY=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringy", "]"}]}], "<>", "\"\<\\n\>\"", "<>",
+           "semmicode", "<>", "\"\<\\n\>\"", "<>", 
+          "\"\<\n\t# regressions\n\t\tMM~XX\n\t\tYY~MM\n\t'\n\tfit <- \
+sem(model, data=da, estimator=\\\"\>\"", "<>", "semmethod", "<>", 
+          "\"\<\\\")\n\tcapture.output(print(summary(fit, fit.measures=TRUE, \
+standardized=TRUE)))\n\t}\>\""}], "]"}]}], ";", "\n", 
+       RowBox[{"$semc", "=", "semdmodel"}], ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"semdmodel2", "=", 
+          RowBox[{"REvaluate", "[", "\"\< fitMeasures(fit)\>\"", "]"}]}], ";",
+          "\n", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+            "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+          RowBox[{
+           RowBox[{"semdmodel2", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{
+             "3", ",", "4", ",", "5", ",", "9", ",", "11", ",", "23", ",", 
+              RowBox[{"-", "5"}], ",", 
+              RowBox[{"-", "4"}]}], "}"}], "]"}], "]"}]}], ";"}], "\n", 
+        "*)"}], "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+         "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+          "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<fitMeasures(fit,c(\\\"chisq\\\",\\\"df\\\",\\\"pvalue\\\",\\\"\
+cfi\\\",\\\"nfi\\\",\\\"rmsea\\\",\\\"gfi\\\",\\\"agfi\\\"))\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"$semmi", "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<{\n\tmi <- modindices(fit)\n\tmi[mi$op == \\\"~~\\\",]\n\t\
+subset(mi[mi$op == \\\"~~\\\",], mi > 5)\n\t}\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\\n\>\""}], 
+       ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "@", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:5361\:65b9\:503c\>\"", ",", "\"\<\:81ea\:7531\:5ea6\>\"",
+                ",", "\"\<P-value\>\"", ",", 
+               "\"\<\:5361\:65b9\:503c/\:81ea\:7531\:5ea6\>\"", ",", 
+               "\"\<CFI\>\"", ",", "\"\<NFI\>\"", ",", "\"\<RMSEA\>\"", ",", 
+               "\"\<GFI\>\"", ",", "\"\<AGFI\>\""}], "}"}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"NumberForm", "[", 
+                RowBox[{"#", ",", 
+                 RowBox[{"{", 
+                  RowBox[{"8", ",", "3"}], "}"}]}], "]"}], "&"}], "/@", 
+              RowBox[{"{", 
+               RowBox[{"chi", ",", "df", ",", "chipv", ",", 
+                RowBox[{"chi", "/", "df"}], ",", "cfi", ",", "nnfi", ",", 
+                "rmsea", ",", "gfi", ",", "agfi"}], "}"}]}]}], "}"}]}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\:6307\:6a19\>\"", ",", 
+               "\"\<\>\""}], "}"}]}], "}"}]}]}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6Modification \
+Indices\:503c\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"SortBy", "[", 
+          RowBox[{
+           RowBox[{"Transpose", "[", "$semmi", "]"}], ",", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "4", "]"}], "]"}], "&"}]}], "]"}]}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", 
+       RowBox[{"xxrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<XX\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"mmrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<MM\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"yyrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<YY\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"xxrange", "=", 
+        RowBox[{
+         RowBox[{"xxrange", "+", "1"}], ";;", 
+         RowBox[{"xxrange", "+", 
+          RowBox[{"Length", "@", "factornumx"}]}]}]}], ";", "\n", 
+       RowBox[{"mmrange", "=", 
+        RowBox[{
+         RowBox[{"mmrange", "+", "1"}], ";;", 
+         RowBox[{"mmrange", "+", 
+          RowBox[{"Length", "@", "factornumm"}]}]}]}], ";", "\n", 
+       RowBox[{"yyrange", "=", 
+        RowBox[{
+         RowBox[{"yyrange", "+", "1"}], ";;", 
+         RowBox[{"yyrange", "+", 
+          RowBox[{"Length", "@", "factornumy"}]}]}]}], ";", "\n", "\n", "\n", 
+       "\n", 
+       RowBox[{"xloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"XX", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "xxrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"mloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"MM", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "mmrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"yloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"YY", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "yyrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"loadings", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"xloading", ",", "mloading", ",", "yloading"}], "}"}], ",",
+           "1"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"Position", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringContainsQ", "[", 
+                 RowBox[{"#", ",", "\"\<MM ~\>\""}], "]"}], "&"}], "/@", 
+               "semdmodel"}], ",", "True"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "1"}], ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Position", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"StringContainsQ", "[", 
+                 RowBox[{"#", ",", "\"\<YY ~\>\""}], "]"}], "&"}], "/@", 
+               "semdmodel"}], ",", "True"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "1"}]}], "}"}]}], 
+       ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"regcoef", "=", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"regcoef", "+", "2"}], ",", 
+            RowBox[{"regcoef", "+", "4"}], ",", 
+            RowBox[{"regcoef", "+", "5"}]}], "}"}]}], ";", "\n", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Print", "@", 
+            RowBox[{"Select", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{
+               RowBox[{"#", "\[NotEqual]", "\"\<\>\""}], "&"}], ",", 
+              "Infinity"}], "]"}]}], "&"}], "/@", 
+          RowBox[{"StringSplit", "[", 
+           RowBox[{
+            RowBox[{"semdmodel", "[", 
+             RowBox[{"[", "regcoef", "]"}], "]"}], ",", "\"\< \>\""}], 
+           "]"}]}], ";"}], "\n", "*)"}], "\n", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"Select", "[", 
+            RowBox[{"#", ",", 
+             RowBox[{
+              RowBox[{"#", "!=", "\"\<\>\""}], "&"}], ",", "Infinity"}], 
+            "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{"1", ",", 
+              RowBox[{"-", "1"}], ",", 
+              RowBox[{"-", "3"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+         RowBox[{"StringSplit", "[", 
+          RowBox[{
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "regcoef", "]"}], "]"}], ",", "\"\< \>\""}], 
+          "]"}]}]}], ";", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"regcoef", "[", 
+               RowBox[{"[", 
+                RowBox[{"1", ",", "1"}], "]"}], "]"}]}], "->", "MM"}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"regcoef", "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "2"}], "]"}], "]"}]}], ",", 
+            RowBox[{"regcoef", "[", 
+             RowBox[{"[", 
+              RowBox[{"1", ",", "3"}], "]"}], "]"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"regcoef", "[", 
+               RowBox[{"[", 
+                RowBox[{"2", ",", "1"}], "]"}], "]"}]}], "->", "YY"}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"regcoef", "[", 
+              RowBox[{"[", 
+               RowBox[{"2", ",", "2"}], "]"}], "]"}]}], ",", 
+            RowBox[{"regcoef", "[", 
+             RowBox[{"[", 
+              RowBox[{"2", ",", "3"}], "]"}], "]"}]}], "}"}]}], "}"}]}], ";", 
+       "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"loadings", ",", "regcoef"}], "}"}], ",", "1"}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "1", "]"}], "]"}], ",", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "2", "]"}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"6", ",", "3"}], "}"}]}], "]"}], ",", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "3", "]"}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "}"}], "&"}], "/@", 
+         "myreport"}]}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:6e2c\:91cf\:6a21\:5f0f\:8207\:7d50\:69cb\:6a21\:5f0f\:6aa2\
+\:5b9a\:5f59\:6574\:8868\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"Insert", "[", 
+          RowBox[{"myreport", ",", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<\:8def\:5f91\>\"", ",", 
+             "\"\<\:6a19\:6e96\:5316\:8def\:5f91\:4fc2\:6578\>\"", ",", 
+             "\"\<P-value\>\""}], "}"}], ",", "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\\n\:7814\:7a76\:67b6\:69cb\:8def\:5f91\:5716\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Graph", "[", "\n", 
+        RowBox[{
+         RowBox[{"Flatten", "[", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"XX", "->", "#"}], "&"}], "/@", 
+              RowBox[{"ToExpression", "@", "varstringx"}]}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"MM", "->", "#"}], "&"}], "/@", "varstringm"}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"YY", "->", "#"}], "&"}], "/@", "varstringy"}], ",", 
+             RowBox[{"XX", "->", "MM"}], ",", 
+             RowBox[{"MM", "->", "YY"}]}], "}"}]}], "]"}], ",", "\n", 
+         RowBox[{"VertexSize", "->", "0.5"}], ",", 
+         RowBox[{"VertexShapeFunction", "->", 
+          RowBox[{"(", 
+           RowBox[{"Flatten", "@", 
+            RowBox[{"{", "\n", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"ToExpression", "[", "#", "]"}], "->", 
+                 "\"\<Rectangle\>\""}], "&"}], "/@", 
+               RowBox[{"Flatten", "[", 
+                RowBox[{"{", 
+                 RowBox[{"varstringx", ",", "varstringm", ",", "varstringy"}],
+                  "}"}], "]"}]}], ",", "\n", 
+              RowBox[{"XX", "->", "\"\<Circle\>\""}], ",", 
+              RowBox[{"MM", "->", "\"\<Circle\>\""}], ",", 
+              RowBox[{"YY", "->", "\"\<Circle\>\""}]}], "}"}]}], ")"}]}], ",",
+          "\n", 
+         RowBox[{"GraphLayout", "->", "\"\<SpringEmbedding\>\""}], ",", "\n", 
+         
+         RowBox[{"VertexLabels", "->", 
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{"i", "->", 
+             RowBox[{"Placed", "[", 
+              RowBox[{"i", ",", "Center"}], "]"}]}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Flatten", "@", 
+               RowBox[{"{", 
+                RowBox[{
+                "XX", ",", "YY", ",", "MM", ",", "varstringx", ",", 
+                 "varstringm", ",", "varstringy"}], "}"}]}]}], "}"}]}], 
+           "]"}]}], ",", "\n", 
+         RowBox[{"EdgeLabels", "->", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], ")"}], "->", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "2", "]"}], "]"}]}], "&"}], "/@", 
+            RowBox[{"myreport", "[", 
+             RowBox[{"[", 
+              RowBox[{"All", ",", 
+               RowBox[{"{", 
+                RowBox[{"1", ",", "2"}], "}"}]}], "]"}], "]"}]}], ")"}]}]}], 
+        "]"}]}]}], "\n", "\n", "\n", "\n", "]"}]}], ";"}], "\n", "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworrycfa", "[", 
+     RowBox[{"dataxx_", ",", "factornumx_", ",", "varstringx_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "var", ",", "test", ",", "out", ",", "cfa", ",", "cfamodel", ",", 
+        "cfi", ",", "chi", ",", "df", ",", "chipv", ",", "rmsea", ",", 
+        "myreport", ",", "loadings", ",", "ave", ",", "cr", ",", "dis", ",", 
+        "cfamodel2", ",", "nnfi", ",", "gfi", ",", "agfi"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"var", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Complement", "[", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Insert", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"Range", "[", "#", "]"}], "&"}], "/@", 
+              RowBox[{"Accumulate", "@", "factornumx"}]}], ",", 
+             RowBox[{"{", "}"}], ",", "1"}], "]"}], ",", "2", ",", "1"}], 
+          "]"}]}]}], ";", "\n", 
+       RowBox[{"test", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"dataxx", ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"\"\<V\>\"", "<>", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"#", "<=", "9"}], ",", 
+               RowBox[{"\"\<0\>\"", "<>", 
+                RowBox[{"ToString", "[", "#", "]"}]}], ",", 
+               RowBox[{"ToString", "[", "#", "]"}]}], "]"}]}], "&"}], "/@", 
+           RowBox[{"Range", "[", 
+            RowBox[{"Total", "@", "factornumx"}], "]"}]}], ",", "1"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{"Export", "[", 
+        RowBox[{"\"\<test.csv\>\"", ",", "test"}], "]"}], ";", "\n", 
+       RowBox[{"cfa", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", 
+            RowBox[{
+             RowBox[{"test", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "[", 
+             RowBox[{"[", "#", "]"}], "]"}], "]"}]}], "&"}], "/@", "var"}]}], 
+       ";", "\n", 
+       RowBox[{"cfa", "=", 
+        RowBox[{"\"\<cfamodel<-'\\n\>\"", "<>", 
+         RowBox[{"StringJoin", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToString", "@", 
+              RowBox[{"varstringx", "[", 
+               RowBox[{"[", "#", "]"}], "]"}]}], "<>", "\"\<=~ \>\"", "<>", 
+             RowBox[{"cfa", "[", 
+              RowBox[{"[", "#", "]"}], "]"}], "<>", "\"\<\\n\>\""}], "&"}], "/@", 
+           RowBox[{"Range", "[", 
+            RowBox[{"Length", "@", "cfa"}], "]"}]}], "]"}], "<>", 
+         "\"\<'\\n\>\""}]}], ";", "\n", 
+       RowBox[{"cfa", "=", 
+        RowBox[{
+        "cfa", "<>", "\"\<fit <- cfa(cfamodel, data=test, estimator=\\\"\>\"",
+          " ", "<>", "semmethod", "<>", " ", "\"\<\\\")\>\""}]}], ";", "\n", 
+       RowBox[{"cfa", "=", 
+        RowBox[{"\"\<{test=data.frame(read.csv(\\\"\>\"", "<>", 
+         RowBox[{"StringReplace", "[", 
+          RowBox[{
+           RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+           RowBox[{"\"\<\\\\\>\"", "->", "\"\<\\\\\\\\\>\""}]}], "]"}], "<>", 
+         "\"\<test.csv\\\", header=T, sep=\\\",\\\"))\\n\>\"", "<>", "\n", 
+         "cfa", "<>", 
+         "\"\<\\n capture.output(print(summary(fit, fit.measures=TRUE, \
+standardized=TRUE)))\>\"", "<>", "\"\<}\>\""}]}], ";", "\n", 
+       RowBox[{"$cfar", "=", "cfa"}], ";", "\n", 
+       RowBox[{"cfamodel", "=", 
+        RowBox[{"REvaluate", "[", "cfa", "]"}]}], ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"cfamodel2", "=", 
+          RowBox[{"REvaluate", "[", "\"\< fitMeasures(fit)\>\"", "]"}]}], ";",
+          "\n", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+            "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+          RowBox[{
+           RowBox[{"cfamodel2", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{
+             "3", ",", "4", ",", "5", ",", "9", ",", "11", ",", "23", ",", 
+              RowBox[{"-", "5"}], ",", 
+              RowBox[{"-", "4"}]}], "}"}], "]"}], "]"}]}], ";"}], "\n", 
+        "*)"}], "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+         "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+          "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<fitMeasures(fit,c(\\\"chisq\\\",\\\"df\\\",\\\"pvalue\\\",\\\"\
+cfi\\\",\\\"nfi\\\",\\\"rmsea\\\",\\\"gfi\\\",\\\"agfi\\\"))\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", "\n", 
+       RowBox[{"$cfa", "=", 
+        RowBox[{"Column", "@", "cfamodel"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "@", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:5361\:65b9\:503c\>\"", ",", "\"\<\:81ea\:7531\:5ea6\>\"",
+                ",", "\"\<P-value\>\"", ",", 
+               "\"\<\:5361\:65b9\:503c/\:81ea\:7531\:5ea6\>\"", ",", 
+               "\"\<CFI\>\"", ",", "\"\<NFI\>\"", ",", "\"\<RMSEA\>\"", ",", 
+               "\"\<GFI\>\"", ",", "\"\<AGFI\>\""}], "}"}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"If", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{"Abs", "[", "#", "]"}], "<", "0.00001"}], ",", 
+                   "0", ",", "#"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"8", ",", "3"}], "}"}]}], "]"}], "&"}], "/@", 
+              RowBox[{"{", 
+               RowBox[{"chi", ",", "df", ",", "chipv", ",", 
+                RowBox[{"chi", "/", "df"}], ",", "cfi", ",", "nnfi", ",", 
+                "rmsea", ",", "gfi", ",", "agfi"}], "}"}]}]}], "}"}]}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\:6307\:6a19\>\"", ",", 
+               "\"\<\>\""}], "}"}]}], "}"}]}]}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"cfamodel", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"Position", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"StringContainsQ", "[", 
+                  RowBox[{"#", ",", "\"\<Latent\>\""}], "]"}], "&"}], "/@", 
+                "cfamodel"}], ",", "True"}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "2"}], ";;", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Position", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"StringContainsQ", "[", 
+                  RowBox[{"#", ",", 
+                   RowBox[{"If", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"Length", "[", "factornumx", "]"}], "==", "1"}], 
+                    ",", "\"\<Variances:\>\"", ",", "\"\<Covariances:\>\""}], 
+                    "]"}]}], "]"}], "&"}], "/@", "cfamodel"}], ",", "True"}], 
+              "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"1", ",", "1"}], "]"}], "]"}], "-", "2"}]}], "]"}], 
+         "]"}]}], ";", "\n", "\n", "\n", 
+       RowBox[{"loadings", "=", 
+        RowBox[{"ToExpression", "@", 
+         RowBox[{
+          RowBox[{"Select", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"StringSplit", "[", 
+               RowBox[{"#", ",", "\"\< \>\""}], "]"}], "&"}], "/@", 
+             "myreport"}], ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Length", "@", "#"}], ">=", "3"}], "&"}]}], "]"}], "[", 
+          
+          RowBox[{"[", 
+           RowBox[{"All", ",", 
+            RowBox[{"{", 
+             RowBox[{"1", ",", 
+              RowBox[{"-", "1"}], ",", 
+              RowBox[{"-", "9"}]}], "}"}]}], "]"}], "]"}]}]}], ";", "\n", 
+       "\n", 
+       RowBox[{"ave", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"N", "@", 
+           RowBox[{"Mean", "[", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"loadings", "[", 
+                RowBox[{"[", 
+                 RowBox[{"All", ",", "2"}], "]"}], "]"}], "^", "2"}], ")"}], 
+             "[", 
+             RowBox[{"[", "#", "]"}], "]"}], "]"}]}], "&"}], "/@", "var"}]}], 
+       ";", "\n", 
+       RowBox[{"cr", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"N", "@", 
+             RowBox[{"Total", "[", 
+              RowBox[{
+               RowBox[{"loadings", "[", 
+                RowBox[{"[", 
+                 RowBox[{"All", ",", "2"}], "]"}], "]"}], "[", 
+               RowBox[{"[", "#", "]"}], "]"}], "]"}]}], "^", "2"}], "/", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Total", "[", 
+               RowBox[{
+                RowBox[{"loadings", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"All", ",", "2"}], "]"}], "]"}], "[", 
+                RowBox[{"[", "#", "]"}], "]"}], "]"}], "^", "2"}], "+", 
+             RowBox[{"Total", "[", 
+              RowBox[{"1", "-", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"loadings", "[", 
+                  RowBox[{"[", 
+                   RowBox[{"All", ",", "2"}], "]"}], "]"}], "[", 
+                 RowBox[{"[", "#", "]"}], "]"}], "^", "2"}]}], "]"}]}], 
+            ")"}]}], "&"}], "/@", "var"}]}], ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "1", "]"}], "]"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}], ",", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"#", "[", 
+                RowBox[{"[", "3", "]"}], "]"}], "==", "\"\<\>\""}], ",", 
+              "\"\<\>\"", ",", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "3", "]"}], "]"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "]"}], ",", 
+            "\"\<\>\"", ",", "\"\<\>\""}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{"loadings", "/.", 
+           RowBox[{"Null", "->", "\"\<\>\""}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{
+        RowBox[{"myreport", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{"var", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", "4"}], "]"}], 
+         "]"}], "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"NumberForm", "[", 
+            RowBox[{"#", ",", 
+             RowBox[{"{", 
+              RowBox[{"4", ",", "3"}], "}"}]}], "]"}], "&"}], ",", "ave"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{
+        RowBox[{"myreport", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{"var", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", "5"}], "]"}], 
+         "]"}], "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"NumberForm", "[", 
+            RowBox[{"#", ",", 
+             RowBox[{"{", 
+              RowBox[{"4", ",", "3"}], "}"}]}], "]"}], "&"}], ",", "cr"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:805a\:5408\:6548\:5ea6 (AVE) \:8207\:6536\:6582\:4fe1\:5ea6 \
+(CR)\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{"myreport", ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:984c\:9805\>\"", ",", "\"\<\:56e0\:7d20\:8ca0\:8377\>\"",
+                ",", "\"\<P-value\>\"", ",", "\"\<AVE\>\"", ",", 
+               "\"\<CR\>\""}], "}"}]}], "}"}]}]}], "]"}]}], ";", "\n", 
+       RowBox[{"test", "=", 
+        RowBox[{"test", "[", 
+         RowBox[{"[", 
+          RowBox[{"2", ";;", 
+           RowBox[{"-", "1"}]}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"dis", "=", 
+        RowBox[{
+         RowBox[{"N", "@", 
+          RowBox[{"Correlation", "[", 
+           RowBox[{"Transpose", "@", 
+            RowBox[{"Map", "[", 
+             RowBox[{"Mean", ",", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"test", "[", 
+                 RowBox[{"[", 
+                  RowBox[{"All", ",", "#"}], "]"}], "]"}], "&"}], "/@", 
+               "var"}], ",", 
+              RowBox[{"{", "2", "}"}]}], "]"}]}], "]"}]}], "^", "2"}]}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\:5340\:9694\:6548\:5ea6\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{"j", "==", "i"}], ",", 
+              RowBox[{"NumberForm", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"ave", "[", 
+                  RowBox[{"[", "j", "]"}], "]"}], "^", "0.5"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"4", ",", "3"}], "}"}]}], "]"}], ",", 
+              RowBox[{"If", "[", 
+               RowBox[{
+                RowBox[{"j", ">", "i"}], ",", "\"\<\>\"", ",", 
+                RowBox[{"NumberForm", "[", 
+                 RowBox[{
+                  RowBox[{"dis", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"i", ",", "j"}], "]"}], "]"}], ",", 
+                  RowBox[{"{", 
+                   RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "]"}]}], "]"}], 
+            ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Length", "@", "varstringx"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", 
+              RowBox[{"Length", "@", "varstringx"}]}], "}"}]}], "]"}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"varstringx", ",", " ", "varstringx"}], "}"}]}]}], 
+         "]"}]}]}]}], "\n", "]"}]}], ";"}], "\n", "\n", "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+   "$mynote", "=", 
+    "\"\<\:6240\:6709\:5831\:8868\:8acb\:9078\:53d6\:5f8c\:6309\:6ed1\:9f20\
+\:53f3\:9375->\:9078\:64c7Copy As Plain \
+Text->\:958b\:555fExcel\:8cbc\:4e0a\\n\>\""}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ThesisNoWorryMed", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "datayy_", ",", "factornumx_", ",", 
+      "factornumm_", ",", "factornumy_", ",", "varstringx_", ",", 
+      "varstringm_", ",", "varstringy_", ",", "norminalvariableso_", ",", 
+      "norminalstrings_", ",", "semmicode_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", "cronbach", "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"$mynote", ",", 
+          RowBox[{"FontSize", "->", "24"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\:6b21\:6578\:5206\:914d\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{"Table", "[", 
+             RowBox[{
+              RowBox[{"ReplacePart", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Flatten", "@", 
+                   RowBox[{"PadLeft", "[", 
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"#", ",", 
+                    RowBox[{
+                    RowBox[{"ToString", "[", 
+                    RowBox[{"NumberForm", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], "/", 
+                    RowBox[{"Length", "[", 
+                    RowBox[{"Dem", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}], "]"}]}], "*", 
+                    "100"}], "//", "N"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"4", ",", "2"}], "}"}]}], "]"}], "]"}], "<>", 
+                    "\"\<%\>\""}]}], "}"}], ",", "3", ",", "\"\<\>\""}], 
+                    "]"}]}], "&"}], "/@", 
+                 RowBox[{"SortBy", "[", 
+                  RowBox[{
+                   RowBox[{"Tally", "@", 
+                    RowBox[{"Dem", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}]}], ",", "First"}],
+                   "]"}]}], ",", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{"1", ",", "1"}], "}"}], "->", 
+                 RowBox[{"DemName", "[", 
+                  RowBox[{"[", "z", "]"}], "]"}]}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"z", ",", 
+                RowBox[{"Length", "@", "DemName"}]}], "}"}]}], "]"}], ",", 
+            "1"}], "]"}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:4eba\:53e3\:8b8a\:9805\>\"", ",", "\"\<\:7d44\:5225\>\"",
+                ",", "\"\<\:6b21\:6578\>\"", ",", 
+               "\"\<\:767e\:5206\:6bd4\>\""}], "}"}]}], "}"}]}]}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\:9805\:76ee\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", "\"\<\:9805\:76ee\:5206\:6790-X\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"ItemAnalysis", "[", 
+         RowBox[{"dataxx", ",", "factornumx"}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\:9805\:76ee\:5206\:6790-M\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"ItemAnalysis", "[", 
+         RowBox[{"datamm", ",", "factornumm"}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\:9805\:76ee\:5206\:6790-Y\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"ItemAnalysis", "[", 
+         RowBox[{"datayy", ",", "factornumy"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"cronbach", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"ToString", "@", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{"{", 
+               RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"dataxx", ",", "factornumx", ",", "varstringx"}], 
+               "]"}], ",", "\n", 
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datamm", ",", "factornumm", ",", "varstringm"}], 
+               "]"}], ",", "\n", 
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datayy", ",", "factornumy", ",", "varstringy"}], 
+               "]"}]}], "}"}], ",", "1"}], "]"}], ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"cronbach", "=", 
+          RowBox[{"Insert", "[", 
+           RowBox[{"cronbach", ",", 
+            RowBox[{"{", 
+             RowBox[{
+             "\"\<\:5404\:5206\:91cf\:8868\>\"", ",", 
+              "\"\<Cronbach'\[Alpha]\>\"", ",", 
+              "\"\<\:6574\:9ad4\:4fe1\:5ea6\>\""}], "}"}], ",", "1"}], 
+           "]"}]}], ";"}], "\n", "*)"}], "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\:4fe1\:5ea6\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{"cronbach", ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:5404\:5206\:91cf\:8868\>\"", ",", 
+               "\"\<Cronbach'\[Alpha]\>\"", ",", 
+               "\"\<\:6574\:9ad4\:4fe1\:5ea6\>\""}], "}"}]}], "}"}]}]}], 
+         "]"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{
+         "\"\<\\n\:4e00\:968eCFA\:6a21\:5f0f\:914d\:9069\:5ea6\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", "\"\<\\n\:4e00\:968eCFA-X\\n\>\""}], ";", "\n", 
+       RowBox[{"thesisnoworrycfa", "[", 
+        RowBox[{"dataxx", ",", "factornumx", ",", "varstringx"}], "]"}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\:4e00\:968eCFA-M\\n\>\""}], ";", "\n", 
+       RowBox[{"thesisnoworrycfa", "[", 
+        RowBox[{"datamm", ",", "factornumm", ",", "varstringm"}], "]"}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\:4e00\:968eCFA-Y\\n\>\""}], ";", "\n", 
+       RowBox[{"thesisnoworrycfa", "[", 
+        RowBox[{"datayy", ",", "factornumy", ",", "varstringy"}], "]"}], ";", 
+       "\n", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\\n\:8b8a\:7570\:6578\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Quiet", "@", 
+         RowBox[{"thesisnoworryanova", "[", 
+          RowBox[{
+          "dataxx", ",", "datamm", ",", "datayy", ",", "factornumx", ",", 
+           "factornumm", ",", "factornumy", ",", "varstringx", ",", 
+           "varstringm", ",", "varstringy", ",", "norminalvariableso", ",", 
+           "norminalstrings"}], "]"}]}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\\n\:968e\:5c64\:56de\:6b78\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Quiet", "@", 
+         RowBox[{"thesisnoworryhlm", "[", 
+          RowBox[{
+          "dataxx", ",", "datamm", ",", "datayy", ",", "factornumx", ",", 
+           "factornumm", ",", "factornumy", ",", "varstringx", ",", 
+           "varstringm", ",", "varstringy"}], "]"}]}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{
+         "\"\<\\nSEM\:7d50\:69cb\:65b9\:7a0b\:5f0f\:6a21\:5f0f\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"thesisnoworrysem", "[", 
+         RowBox[{
+         "dataxx", ",", "datamm", ",", "datayy", ",", "factornumx", ",", 
+          "factornumm", ",", "factornumy", ",", "varstringx", ",", 
+          "varstringm", ",", "varstringy", ",", "semmicode"}], "]"}]}]}]}], 
+     "\n", "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworrysemxy", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "factornumx_", ",", "factornumm_", ",", 
+      "varstringx_", ",", "varstringm_", ",", "semmicode_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", "\n", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "test", ",", "test1", ",", "test2", ",", "test3", ",", "semdmodel", 
+        ",", "cfi", ",", "chi", ",", "df", ",", "chipv", ",", "rmsea", ",", 
+        "xxrange", ",", "mmrange", ",", "yyrange", ",", "xloading", ",", 
+        "mloading", ",", "yloading", ",", "XX", ",", "YY", ",", "MM", ",", 
+        "regcoef", ",", "loadings", ",", "myreport", ",", "semdmodel2", ",", 
+        "nnfi", ",", "gfi", ",", "agfi"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"test1", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"Mean", ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"dataxx", "[", 
+               RowBox[{"[", 
+                RowBox[{"z", ",", "#"}], "]"}], "]"}], "&"}], "/@", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Complement", "[", 
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "2", "]"}], "]"}], ",", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "&"}], "/@", 
+               RowBox[{"Partition", "[", 
+                RowBox[{
+                 RowBox[{"Insert", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Range", "[", "#", "]"}], "&"}], "/@", 
+                    RowBox[{"Accumulate", "@", "factornumx"}]}], ",", 
+                   RowBox[{"{", "}"}], ",", "1"}], "]"}], ",", "2", ",", 
+                 "1"}], "]"}]}], ")"}]}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"z", ",", 
+            RowBox[{"Length", "@", "dataxx"}]}], "}"}]}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"test2", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"Mean", ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"datamm", "[", 
+               RowBox[{"[", 
+                RowBox[{"z", ",", "#"}], "]"}], "]"}], "&"}], "/@", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Complement", "[", 
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "2", "]"}], "]"}], ",", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "&"}], "/@", 
+               RowBox[{"Partition", "[", 
+                RowBox[{
+                 RowBox[{"Insert", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"Range", "[", "#", "]"}], "&"}], "/@", 
+                    RowBox[{"Accumulate", "@", "factornumm"}]}], ",", 
+                   RowBox[{"{", "}"}], ",", "1"}], "]"}], ",", "2", ",", 
+                 "1"}], "]"}]}], ")"}]}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"z", ",", 
+            RowBox[{"Length", "@", "datamm"}]}], "}"}]}], "]"}]}], ";", "\n", 
+       "\n", 
+       RowBox[{"test", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"Flatten", "/@", 
+           RowBox[{"N", "@", 
+            RowBox[{"Transpose", "@", 
+             RowBox[{"{", 
+              RowBox[{"test1", ",", "test2"}], "}"}]}]}]}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"varstringx", ",", "varstringm"}], "}"}]}], ",", "1"}], 
+         "]"}]}], ";", "\n", 
+       RowBox[{"Export", "[", 
+        RowBox[{"\"\<test.csv\>\"", ",", "test"}], "]"}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:5404\:6982\:5ff5\:5e73\:5747\:6578\:53ca\:6a19\:6e96\:5dee\\n\>\
+\""}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"Insert", "[", 
+          RowBox[{
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"test", "[", 
+                RowBox[{"[", 
+                 RowBox[{"1", ",", "z"}], "]"}], "]"}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"Mean", "[", 
+                  RowBox[{
+                   RowBox[{"test", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}], "[", 
+                   RowBox[{"[", 
+                    RowBox[{"2", ";;", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "3"}], "}"}]}], "]"}], ",", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"StandardDeviation", "[", 
+                  RowBox[{
+                   RowBox[{"test", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}], "[", 
+                   RowBox[{"[", 
+                    RowBox[{"2", ";;", 
+                    RowBox[{"-", "1"}]}], "]"}], "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"5", ",", "3"}], "}"}]}], "]"}]}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"z", ",", 
+               RowBox[{"Length", "[", 
+                RowBox[{"test", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], "]"}]}], "}"}]}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<\:6982\:5ff5\>\"", ",", "\"\<\:5e73\:5747\:6578\>\"", ",", 
+             "\"\<\:6a19\:6e96\:5dee\>\""}], "}"}], ",", "1"}], "]"}]}]}], 
+       ";", "\n", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", 
+       RowBox[{"semdmodel", "=", 
+        RowBox[{"REvaluate", "[", 
+         RowBox[{"\"\<{\n\tda=data.frame(read.csv(\\\"\>\"", "<>", 
+          RowBox[{"StringReplace", "[", 
+           RowBox[{
+            RowBox[{"NotebookDirectory", "[", "]"}], ",", 
+            RowBox[{"\"\<\\\\\>\"", "->", "\"\<\\\\\\\\\>\""}]}], "]"}], 
+          "<>", "\"\<test.csv\\\", header=T, sep=\\\",\\\"))\n\tmodel<-'\n\t# \
+measurement model\n\t\tXX=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringx", "]"}]}], "<>", 
+          "\"\<\n\t\tMM=~\>\"", "<>", 
+          RowBox[{"ToString", "@", 
+           RowBox[{"Total", "[", "varstringm", "]"}]}], "<>", "\"\<\\n\>\"", "<>",
+           "semmicode", "<>", "\"\<\\n\>\"", "<>", 
+          "\"\<\n\t# regressions\n\t\tMM~XX\n\t'\n\tfit <- sem(model, \
+data=da, estimator=\\\"\>\"", "<>", "semmethod", " ", "<>", 
+          "\"\<\\\")\n\tmi <- modindices(fit)\n\t\
+capture.output(print(summary(fit, fit.measures=TRUE, standardized=TRUE)))\n\t\
+}\>\""}], "]"}]}], ";", "\n", 
+       RowBox[{"$sem", "=", "semdmodel"}], ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"semdmodel2", "=", 
+          RowBox[{"REvaluate", "[", "\"\< fitMeasures(fit)\>\"", "]"}]}], ";",
+          "\n", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+            "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+          RowBox[{
+           RowBox[{"semdmodel2", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{
+             "3", ",", "4", ",", "5", ",", "9", ",", "11", ",", "23", ",", 
+              RowBox[{"-", "5"}], ",", 
+              RowBox[{"-", "4"}]}], "}"}], "]"}], "]"}]}], ";"}], "\n", 
+        "*)"}], "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+         "chi", ",", "df", ",", "chipv", ",", "cfi", ",", "nnfi", ",", 
+          "rmsea", ",", "gfi", ",", "agfi"}], "}"}], "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<fitMeasures(fit,c(\\\"chisq\\\",\\\"df\\\",\\\"pvalue\\\",\\\"\
+cfi\\\",\\\"nfi\\\",\\\"rmsea\\\",\\\"gfi\\\",\\\"agfi\\\"))\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", "\n", "\n", 
+       RowBox[{"$semmi", "=", 
+        RowBox[{
+         RowBox[{
+         "REvaluate", "[", 
+          "\"\<{\n\tmi <- modindices(fit)\n\tmi[mi$op == \\\"~~\\\",]\n\t\
+subset(mi[mi$op == \\\"~~\\\",], mi > 5)\n\t}\>\"", "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\\n\>\""}], 
+       ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "@", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:5361\:65b9\:503c\>\"", ",", "\"\<\:81ea\:7531\:5ea6\>\"",
+                ",", "\"\<P-value\>\"", ",", 
+               "\"\<\:5361\:65b9\:503c/\:81ea\:7531\:5ea6\>\"", ",", 
+               "\"\<CFI\>\"", ",", "\"\<NFI\>\"", ",", "\"\<RMSEA\>\"", ",", 
+               "\"\<GFI\>\"", ",", "\"\<AGFI\>\""}], "}"}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"NumberForm", "[", 
+                RowBox[{"#", ",", 
+                 RowBox[{"{", 
+                  RowBox[{"8", ",", "3"}], "}"}]}], "]"}], "&"}], "/@", 
+              RowBox[{"{", 
+               RowBox[{"chi", ",", "df", ",", "chipv", ",", 
+                RowBox[{"chi", "/", "df"}], ",", "cfi", ",", "nnfi", ",", 
+                "rmsea", ",", "gfi", ",", "agfi"}], "}"}]}]}], "}"}]}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6\:6307\:6a19\>\"", ",", 
+               "\"\<\>\""}], "}"}]}], "}"}]}]}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\>\""}], ";", "\n", "\n", " ", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:6a21\:5f0f\:914d\:9069\:5ea6Modification \
+Indices\:503c\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"SortBy", "[", 
+          RowBox[{
+           RowBox[{"Transpose", "[", "$semmi", "]"}], ",", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "4", "]"}], "]"}], "&"}]}], "]"}]}]}], ";", "\n", 
+       "\n", 
+       RowBox[{"xxrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<XX\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+       RowBox[{"mmrange", "=", 
+        RowBox[{
+         RowBox[{"Position", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringContainsQ", "[", 
+              RowBox[{"#", ",", "\"\<MM\>\""}], "]"}], "&"}], "/@", 
+            "semdmodel"}], ",", "True"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"xxrange", "=", 
+        RowBox[{
+         RowBox[{"xxrange", "+", "1"}], ";;", 
+         RowBox[{"xxrange", "+", 
+          RowBox[{"Length", "@", "factornumx"}]}]}]}], ";", "\n", 
+       RowBox[{"mmrange", "=", 
+        RowBox[{
+         RowBox[{"mmrange", "+", "1"}], ";;", 
+         RowBox[{"mmrange", "+", 
+          RowBox[{"Length", "@", "factornumm"}]}]}]}], ";", "\n", "\n", "\n", 
+       
+       RowBox[{"xloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"XX", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "xxrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       RowBox[{"mloading", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"MM", "->", 
+             RowBox[{"ToExpression", "@", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}]}]}], ",", 
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"StringSplit", "[", 
+              RowBox[{"#", ",", "\"\< \>\""}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "9"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "mmrange", "]"}], "]"}]}], ")"}]}]}], ";", "\n", 
+       "\n", 
+       RowBox[{"loadings", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"xloading", ",", "mloading"}], "}"}], ",", "1"}], "]"}]}], 
+       ";", "\n", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Position", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"StringContainsQ", "[", 
+                RowBox[{"#", ",", "\"\<MM ~\>\""}], "]"}], "&"}], "/@", 
+              "semdmodel"}], ",", "True"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"1", ",", "1"}], "]"}], "]"}], "+", "1"}], "}"}]}], ";", 
+       "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"regcoef", "=", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"regcoef", "+", "2"}], ",", 
+            RowBox[{"regcoef", "+", "4"}], ",", 
+            RowBox[{"regcoef", "+", "5"}]}], "}"}]}], ";", "\n", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Print", "@", 
+            RowBox[{"Select", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{
+               RowBox[{"#", "\[NotEqual]", "\"\<\>\""}], "&"}], ",", 
+              "Infinity"}], "]"}]}], "&"}], "/@", 
+          RowBox[{"StringSplit", "[", 
+           RowBox[{
+            RowBox[{"semdmodel", "[", 
+             RowBox[{"[", "regcoef", "]"}], "]"}], ",", "\"\< \>\""}], 
+           "]"}]}], ";"}], "\n", "*)"}], "\n", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"Select", "[", 
+            RowBox[{"#", ",", 
+             RowBox[{
+              RowBox[{"#", "!=", "\"\<\>\""}], "&"}], ",", "Infinity"}], 
+            "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"{", 
+             RowBox[{"1", ",", 
+              RowBox[{"-", "1"}], ",", 
+              RowBox[{"-", "3"}]}], "}"}], "]"}], "]"}], "&"}], "/@", 
+         RowBox[{"StringSplit", "[", 
+          RowBox[{
+           RowBox[{"semdmodel", "[", 
+            RowBox[{"[", "regcoef", "]"}], "]"}], ",", "\"\< \>\""}], 
+          "]"}]}]}], ";", "\n", 
+       RowBox[{"regcoef", "=", 
+        RowBox[{"{", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"ToExpression", "@", 
+             RowBox[{"regcoef", "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "1"}], "]"}], "]"}]}], "->", "MM"}], ",", 
+           RowBox[{"ToExpression", "@", 
+            RowBox[{"regcoef", "[", 
+             RowBox[{"[", 
+              RowBox[{"1", ",", "2"}], "]"}], "]"}]}], ",", 
+           RowBox[{"regcoef", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "3"}], "]"}], "]"}]}], "}"}], "}"}]}], ";", 
+       "\n", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"loadings", ",", "regcoef"}], "}"}], ",", "1"}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"myreport", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "1", "]"}], "]"}], ",", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "2", "]"}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"6", ",", "3"}], "}"}]}], "]"}], ",", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "3", "]"}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"6", ",", "3"}], "}"}]}], "]"}]}], "}"}], "&"}], "/@", 
+         "myreport"}]}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\:6e2c\:91cf\:6a21\:5f0f\:8207\:7d50\:69cb\:6a21\:5f0f\:6aa2\
+\:5b9a\:5f59\:6574\:8868\\n\>\""}], ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "@", 
+         RowBox[{"Insert", "[", 
+          RowBox[{"myreport", ",", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<\:8def\:5f91\>\"", ",", 
+             "\"\<\:6a19\:6e96\:5316\:8def\:5f91\:4fc2\:6578\>\"", ",", 
+             "\"\<P-value\>\""}], "}"}], ",", "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{
+       "Print", "@", 
+        "\"\<\\n\:7814\:7a76\:67b6\:69cb\:8def\:5f91\:5716\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Graph", "[", "\n", 
+         RowBox[{
+          RowBox[{"Flatten", "[", 
+           RowBox[{"Flatten", "@", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"XX", "->", "#"}], "&"}], "/@", 
+               RowBox[{"ToExpression", "@", "varstringx"}]}], ",", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"MM", "->", "#"}], "&"}], "/@", "varstringm"}], ",", 
+              RowBox[{"XX", "->", "MM"}]}], "}"}]}], "]"}], ",", "\n", 
+          RowBox[{"VertexSize", "->", "0.5"}], ",", 
+          RowBox[{"VertexShapeFunction", "->", 
+           RowBox[{"(", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", "\n", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"ToExpression", "[", "#", "]"}], "->", 
+                  "\"\<Rectangle\>\""}], "&"}], "/@", 
+                RowBox[{"Flatten", "[", 
+                 RowBox[{"{", 
+                  RowBox[{"varstringx", ",", "varstringm"}], "}"}], "]"}]}], 
+               ",", "\n", 
+               RowBox[{"XX", "->", "\"\<Circle\>\""}], ",", 
+               RowBox[{"MM", "->", "\"\<Circle\>\""}]}], "}"}]}], ")"}]}], 
+          ",", "\n", 
+          RowBox[{"GraphLayout", "->", "\"\<SpringEmbedding\>\""}], ",", "\n", 
+          RowBox[{"VertexLabels", "->", 
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{"i", "->", 
+              RowBox[{"Placed", "[", 
+               RowBox[{"i", ",", "Center"}], "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"i", ",", 
+               RowBox[{"Flatten", "@", 
+                RowBox[{"{", 
+                 RowBox[{
+                 "XX", ",", "MM", ",", "varstringx", ",", "varstringm"}], 
+                 "}"}]}]}], "}"}]}], "]"}]}], ",", "\n", 
+          RowBox[{"EdgeLabels", "->", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], ")"}], "->", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "2", "]"}], "]"}]}], "&"}], "/@", 
+             RowBox[{"myreport", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"{", 
+                 RowBox[{"1", ",", "2"}], "}"}]}], "]"}], "]"}]}], ")"}]}]}], 
+         "]"}]}], ";"}]}], "\n", "]"}]}], ";"}], "\n", "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ThesisNoWorryXM", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "factornumx_", ",", "factornumm_", ",", 
+      "varstringx_", ",", "varstringm_", ",", "norminalvariableso_", ",", 
+      "norminalstrings_", ",", "semmicode_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", "cronbach", "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"$mynote", ",", 
+          RowBox[{"FontSize", "->", "24"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\:6b21\:6578\:5206\:914d\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{"Table", "[", 
+             RowBox[{
+              RowBox[{"ReplacePart", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Flatten", "@", 
+                   RowBox[{"PadLeft", "[", 
+                    RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"#", ",", 
+                    RowBox[{
+                    RowBox[{"ToString", "[", 
+                    RowBox[{"NumberForm", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], "/", 
+                    RowBox[{"Length", "[", 
+                    RowBox[{"Dem", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}], "]"}]}], "*", 
+                    "100"}], "//", "N"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"4", ",", "2"}], "}"}]}], "]"}], "]"}], "<>", 
+                    "\"\<%\>\""}]}], "}"}], ",", "3", ",", "\"\<\>\""}], 
+                    "]"}]}], "&"}], "/@", 
+                 RowBox[{"SortBy", "[", 
+                  RowBox[{
+                   RowBox[{"Tally", "@", 
+                    RowBox[{"Dem", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "z"}], "]"}], "]"}]}], ",", "First"}],
+                   "]"}]}], ",", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{"1", ",", "1"}], "}"}], "->", 
+                 RowBox[{"DemName", "[", 
+                  RowBox[{"[", "z", "]"}], "]"}]}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"z", ",", 
+                RowBox[{"Length", "@", "DemName"}]}], "}"}]}], "]"}], ",", 
+            "1"}], "]"}], ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:4eba\:53e3\:8b8a\:9805\>\"", ",", "\"\<\:7d44\:5225\>\"",
+                ",", "\"\<\:6b21\:6578\>\"", ",", 
+               "\"\<\:767e\:5206\:6bd4\>\""}], "}"}]}], "}"}]}]}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\:9805\:76ee\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", "\"\<\:9805\:76ee\:5206\:6790-X\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"ItemAnalysis", "[", 
+         RowBox[{"dataxx", ",", "factornumx"}], "]"}]}], ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\:9805\:76ee\:5206\:6790-M\\n\>\""}], ";", 
+       "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"ItemAnalysis", "[", 
+         RowBox[{"datamm", ",", "factornumm"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"cronbach", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"ToString", "@", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{"{", 
+               RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"dataxx", ",", "factornumx", ",", "varstringx"}], 
+               "]"}], ",", "\n", 
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datamm", ",", "factornumm", ",", "varstringm"}], 
+               "]"}]}], "}"}], ",", "1"}], "]"}], ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"(*", "\n", 
+        RowBox[{
+         RowBox[{"cronbach", "=", 
+          RowBox[{"Insert", "[", 
+           RowBox[{"cronbach", ",", 
+            RowBox[{"{", 
+             RowBox[{
+             "\"\<\:5404\:5206\:91cf\:8868\>\"", ",", 
+              "\"\<Cronbach'\[Alpha]\>\"", ",", 
+              "\"\<\:6574\:9ad4\:4fe1\:5ea6\>\""}], "}"}], ",", "1"}], 
+           "]"}]}], ";"}], "\n", "*)"}], "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\:4fe1\:5ea6\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"TableForm", "[", 
+         RowBox[{"cronbach", ",", 
+          RowBox[{"TableHeadings", "->", 
+           RowBox[{"{", 
+            RowBox[{"None", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{
+              "\"\<\:5404\:5206\:91cf\:8868\>\"", ",", 
+               "\"\<Cronbach'\[Alpha]\>\"", ",", 
+               "\"\<\:6574\:9ad4\:4fe1\:5ea6\>\""}], "}"}]}], "}"}]}]}], 
+         "]"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{
+         "\"\<\\n\:4e00\:968eCFA\:6a21\:5f0f\:914d\:9069\:5ea6\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", "\"\<\\n\:4e00\:968eCFA-X\\n\>\""}], ";", "\n", 
+       RowBox[{"Quiet", "@", 
+        RowBox[{"thesisnoworrycfa", "[", 
+         RowBox[{"dataxx", ",", "factornumx", ",", "varstringx"}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"Print", "@", "\"\<\\n\:4e00\:968eCFA-M\\n\>\""}], ";", "\n", 
+       RowBox[{"Quiet", "@", 
+        RowBox[{"thesisnoworrycfa", "[", 
+         RowBox[{"datamm", ",", "factornumm", ",", "varstringm"}], "]"}]}], 
+       ";", "\n", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\\n\:8b8a\:7570\:6578\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"Quiet", "@", 
+         RowBox[{"thesisnoworryanovaXM", "[", 
+          RowBox[{
+          "dataxx", ",", "datamm", ",", "factornumx", ",", "factornumm", ",", 
+           "varstringx", ",", "varstringm", ",", "norminalvariableso", ",", 
+           "norminalstrings"}], "]"}]}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{"\"\<\\n\:968e\:5c64\:56de\:6b78\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"thesisnoworryhlmxm", "[", 
+         RowBox[{
+         "dataxx", ",", "datamm", ",", "factornumx", ",", "factornumm", ",", 
+          "varstringx", ",", "varstringm"}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"Print", "@", 
+        RowBox[{"Style", "[", 
+         RowBox[{
+         "\"\<\\nSEM\:7d50\:69cb\:65b9\:7a0b\:5f0f\:6a21\:5f0f\\n\>\"", ",", 
+          RowBox[{"FontSize", "->", "16"}], ",", "Red"}], "]"}]}], ";", "\n", 
+       
+       RowBox[{"Print", "@", 
+        RowBox[{"thesisnoworrysemxy", "[", 
+         RowBox[{
+         "dataxx", ",", "datamm", ",", "factornumx", ",", "factornumm", ",", 
+          "varstringx", ",", "varstringm", ",", "semmicode"}], "]"}]}]}]}], 
+     "\n", "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworryhlmxm", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "factornumx_", ",", "factornumm_", ",", 
+      "varstringx_", ",", "varstringm_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "datax", ",", "datam", ",", "datay", ",", "cronbach", ",", "numfx", 
+        ",", "numfm", ",", "numfy", ",", "seqx", ",", "seqm", ",", "seqy", 
+        ",", "newdatax", ",", "newdatam", ",", "newdatay", ",", "newdataxmy", 
+        ",", "mycortest"}], "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"datax", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"dataxx", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "dataxx", ",", 
+          RowBox[{"dataxx", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"datam", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"datamm", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "datamm", ",", 
+          RowBox[{"datamm", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"cronbach", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"ToString", "@", 
+            RowBox[{"NumberForm", "[", 
+             RowBox[{"#", ",", 
+              RowBox[{"{", 
+               RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "&"}], ",", 
+          RowBox[{"Flatten", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datax", ",", "factornumx", ",", "varstringx"}], "]"}],
+               ",", "\n", 
+              RowBox[{"mycronbach", "[", 
+               RowBox[{"datam", ",", "factornumm", ",", "varstringm"}], 
+               "]"}]}], "}"}], ",", "1"}], "]"}], ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"cronbach", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{"cronbach", ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "\"\<Factor\>\"", ",", "\"\<Alpha\>\"", ",", 
+            "\"\<Total Alpha\>\""}], "}"}], ",", "1"}], "]"}]}], ";", "\n", 
+       RowBox[{"numfx", "=", 
+        RowBox[{"Length", "@", "factornumx"}]}], ";", "\n", 
+       RowBox[{"seqx", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumx"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatax", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Mean", "/@", 
+           RowBox[{"datax", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", 
+              RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+         "seqx"}]}], ";", "\n", 
+       RowBox[{"numfm", "=", 
+        RowBox[{"Length", "@", "factornumm"}]}], ";", "\n", 
+       RowBox[{"seqm", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumm"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatam", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Mean", "/@", 
+           RowBox[{"datam", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", 
+              RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+         "seqm"}]}], ";", "\n", "\n", "\n", 
+       RowBox[{"newdataxmy", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"newdatax", ",", "newdatam"}], "}"}], ",", "1"}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"mycortest", "=", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "2", "]"}], "]"}], "<=", "0.05"}], ",", 
+             RowBox[{
+              RowBox[{"ToString", "@", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"#", "[", 
+                  RowBox[{"[", "1", "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "<>", 
+              "\"\<*\>\""}], ",", 
+             RowBox[{
+              RowBox[{"ToString", "@", 
+               RowBox[{"NumberForm", "[", 
+                RowBox[{
+                 RowBox[{"#", "[", 
+                  RowBox[{"[", "1", "]"}], "]"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"4", ",", "3"}], "}"}]}], "]"}]}], "<>", 
+              "\"\< \>\""}]}], "]"}], "&"}], ",", 
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"PearsonCorrelationTest", "[", 
+               RowBox[{
+                RowBox[{"newdataxmy", "[", 
+                 RowBox[{"[", "i", "]"}], "]"}], ",", 
+                RowBox[{"newdataxmy", "[", 
+                 RowBox[{"[", "j", "]"}], "]"}], ",", "\"\<TestDataTable\>\"",
+                 ",", 
+                RowBox[{"VerifyTestAssumptions", "->", "None"}]}], "]"}], "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "1", ",", "2"}], "]"}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"{", 
+               RowBox[{"2", ",", "3"}], "}"}], "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Length", "@", "newdataxmy"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", 
+              RowBox[{"Length", "@", "newdataxmy"}]}], "}"}]}], "]"}], ",", 
+          RowBox[{"{", "2", "}"}]}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"mycortest", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"MapThread", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", 
+               RowBox[{"#1", ",", "#2"}], "}"}]}], "&"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"Flatten", "@", 
+               RowBox[{"{", 
+                RowBox[{"varstringx", ",", "varstringm"}], "}"}]}], ",", 
+              "mycortest"}], "}"}]}], "]"}], ",", 
+          RowBox[{"Flatten", "@", 
+           RowBox[{"{", 
+            RowBox[{"\"\<\>\"", ",", 
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", 
+               RowBox[{"varstringx", ",", "varstringm"}], "}"}]}]}], "}"}]}], 
+          ",", "1"}], "]"}]}], ";", "\n", "\n", "\n", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"\"\<\\n\:76f8\:95dc\:5206\:6790\\n\>\"", ",", 
+          RowBox[{"mycortest", "//", "TableForm"}], ",", 
+          "\"\<\\n\:968e\:5c64\:8ff4\:6b78\:5206\:6790\\n\>\"", ",", "\n", 
+          "\n", 
+          RowBox[{
+           RowBox[{"Insert", "[", 
+            RowBox[{
+             RowBox[{"myreg", "[", 
+              RowBox[{"newdatax", ",", "newdatam"}], "]"}], ",", 
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", 
+               RowBox[{"\"\<\>\"", ",", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"{", 
+                   RowBox[{
+                    RowBox[{"\"\<M\>\"", "<>", 
+                    RowBox[{"ToString", "[", "#", "]"}]}], ",", "\"\<\>\""}], 
+                   "}"}], "&"}], "/@", 
+                 RowBox[{"Range", "[", 
+                  RowBox[{"Length", "@", "varstringm"}], "]"}]}]}], "}"}]}], 
+             ",", "1"}], "]"}], "//", "TableForm"}]}], "}"}], "//", 
+        "Column"}]}]}], "\n", "\n", "]"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"thesisnoworryanovaXM", "[", 
+     RowBox[{
+     "dataxx_", ",", "datamm_", ",", "factornumx_", ",", "factornumm_", ",", 
+      "varstringx_", ",", "varstringm_", ",", "norminalvariableso_", ",", 
+      "norminalstrings_"}], "]"}], ":=", 
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "datax", ",", "datam", ",", "datay", ",", "cronbach", ",", "numfx", 
+        ",", "numfm", ",", "numfy", ",", "seqx", ",", "seqm", ",", "seqy", 
+        ",", "newdatax", ",", "newdatam", ",", "newdatay", ",", "newdataxmy", 
+        ",", "numfn", ",", "dataanova", ",", "norminalvariables", ",", 
+        "norminalvariablesnum", ",", "norminalvariablepos"}], "}"}], ",", 
+      "\n", 
+      RowBox[{
+       RowBox[{"datax", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"dataxx", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "dataxx", ",", 
+          RowBox[{"dataxx", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"datam", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"datamm", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", "datamm", ",", 
+          RowBox[{"datamm", "[", 
+           RowBox[{"[", 
+            RowBox[{"2", ";;", 
+             RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";", "\n", "\n", 
+       RowBox[{"numfx", "=", 
+        RowBox[{"Length", "@", "factornumx"}]}], ";", "\n", 
+       RowBox[{"seqx", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumx"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatax", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"N", "@", "Mean"}], "/@", 
+             RowBox[{"datax", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+           "seqx"}], ",", 
+          RowBox[{"Mean", "/@", "dataxx"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"numfm", "=", 
+        RowBox[{"Length", "@", "factornumm"}]}], ";", "\n", 
+       RowBox[{"seqm", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "+", "1"}], ",", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], "}"}], "&"}], "/@", 
+         RowBox[{"Partition", "[", 
+          RowBox[{
+           RowBox[{"Accumulate", "[", 
+            RowBox[{"Flatten", "@", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "factornumm"}], "}"}]}], "]"}], ",", "2", ",",
+            "1"}], "]"}]}]}], ";", "\n", 
+       RowBox[{"newdatam", "=", 
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"Mean", "/@", 
+             RowBox[{"datam", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", 
+                RowBox[{"Range", "@@", "#"}]}], "]"}], "]"}]}], "&"}], "/@", 
+           "seqm"}], ",", 
+          RowBox[{"Mean", "/@", "datamm"}], ",", 
+          RowBox[{"-", "1"}]}], "]"}]}], ";", "\n", "\n", "\n", 
+       RowBox[{"newdataxmy", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"newdatax", ",", "newdatam"}], "}"}], ",", "1"}], "]"}]}], 
+       ";", "\n", 
+       RowBox[{"numfy", "=", 
+        RowBox[{"Length", "@", "norminalstrings"}]}], ";", "\n", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"norminalvariables", "=", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"NumericQ", "@", 
+             RowBox[{"norminalvariableso", "[", 
+              RowBox[{"[", 
+               RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", 
+            "norminalvariableso", ",", 
+            RowBox[{"norminalvariableso", "[", 
+             RowBox[{"[", 
+              RowBox[{"2", ";;", 
+               RowBox[{"-", "1"}]}], "]"}], "]"}]}], "]"}]}], ";"}], "*)"}], 
+       "\n", 
+       RowBox[{"norminalvariables", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"NumericQ", "@", 
+           RowBox[{"norminalvariableso", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ",", 
+          "norminalvariableso", ",", "norminalvariableso"}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"dataanova", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Transpose", "[", "norminalvariables", "]"}], ",", 
+          "newdataxmy"}], "}"}]}], ";", "\n", 
+       RowBox[{"dataanova", "=", 
+        RowBox[{"Flatten", "[", 
+         RowBox[{
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{"myanova", "[", 
+             RowBox[{"i", ",", "j"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{"Transpose", "[", "norminalvariables", "]"}]}], "}"}], 
+            ",", 
+            RowBox[{"{", 
+             RowBox[{"j", ",", "newdataxmy"}], "}"}]}], "]"}], ",", "2"}], 
+         "]"}]}], ";", "\n", "\n", 
+       RowBox[{"norminalvariablesnum", "=", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "#", "]"}], "&"}], "/@", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Tally", "[", "#", "]"}], "&"}], "/@", 
+           RowBox[{"Transpose", "[", "norminalvariables", "]"}]}], ")"}]}]}], 
+       ";", "\n", "\n", 
+       RowBox[{"dataanova", "=", 
+        RowBox[{"Join", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"Flatten", "@", 
+            RowBox[{"Table", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"PadRight", "[", 
+                 RowBox[{"#", ",", 
+                  RowBox[{"norminalvariablesnum", "[", 
+                   RowBox[{"[", "i", "]"}], "]"}], ",", "\"\<\>\""}], "]"}], 
+                "&"}], "/@", 
+               RowBox[{"Transpose", "[", 
+                RowBox[{"{", 
+                 RowBox[{"Flatten", "[", 
+                  RowBox[{"{", 
+                   RowBox[{
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringx", ",", "\"\<X\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}], ",", 
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringm", ",", "\"\<M\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}]}], "}"}], "]"}], "}"}], 
+                "]"}]}], ",", 
+              RowBox[{"{", 
+               RowBox[{"i", ",", 
+                RowBox[{"Length", "@", "norminalvariablesnum"}]}], "}"}]}], 
+             "]"}]}], "}"}], ",", 
+          RowBox[{"Transpose", "@", "dataanova"}]}], "]"}]}], ";", "\n", 
+       RowBox[{"norminalvariablepos", "=", 
+        RowBox[{
+         RowBox[{"\"\<\>\"", "&"}], "/@", 
+         RowBox[{"Range", "[", 
+          RowBox[{"Length", "@", 
+           RowBox[{"dataanova", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}]}], ";", "\n", 
+       RowBox[{
+        RowBox[{"norminalvariablepos", "[", 
+         RowBox[{"[", 
+          RowBox[{
+           RowBox[{"Flatten", "[", 
+            RowBox[{"1", "+", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", 
+               RowBox[{"Accumulate", "[", 
+                RowBox[{"norminalvariablesnum", "*", 
+                 RowBox[{"Length", "[", 
+                  RowBox[{"Flatten", "[", 
+                   RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringx", ",", "\"\<X\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}], ",", 
+                    RowBox[{"Insert", "[", 
+                    RowBox[{"varstringm", ",", "\"\<M\:6574\:9ad4\>\"", ",", 
+                    RowBox[{"-", "1"}]}], "]"}]}], "}"}], "]"}], "]"}]}], 
+                "]"}]}], "}"}]}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"1", ";;", 
+             RowBox[{"-", "2"}]}], "]"}], "]"}], "]"}], "]"}], "=", 
+        "norminalstrings"}], ";", "\n", "\n", 
+       RowBox[{
+        RowBox[{"Insert", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"NumberForm", "[", 
+              RowBox[{"#", ",", 
+               RowBox[{"{", 
+                RowBox[{"10", ",", "3"}], "}"}]}], "]"}], "&"}], ",", 
+            RowBox[{"Transpose", "@", 
+             RowBox[{"Join", "[", 
+              RowBox[{
+               RowBox[{"{", "norminalvariablepos", "}"}], ",", 
+               RowBox[{"N", "@", "dataanova"}]}], "]"}]}], ",", 
+            RowBox[{"{", "2", "}"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "\"\<\:4eba\:53e3\:7d71\:8a08\:8b8a\:6578\>\"", ",", 
+            "\"\<\:56e0\:7d20\>\"", ",", "\"\<\:7d44\:5225\>\"", ",", 
+            "\"\<\:5e73\:5747\:6578\>\"", ",", "\"\<\:6a19\:6e96\:5dee\>\"", 
+            ",", "\"\<F\:503c\>\"", ",", "\"\<P \:503c\>\"", ",", 
+            "\"\<\:4e8b\:5f8c\:6bd4\:8f03\>\""}], "}"}], ",", "1"}], "]"}], "//",
+         "TableForm"}]}]}], "\n", " ", "\n", "]"}]}], ";"}], 
+  "\n"}], "\n"}], "Input",
+ CellChangeTimes->{{3.805239132617696*^9, 3.805239146456093*^9}, 
+   3.805242538921146*^9, {3.805242576285191*^9, 3.805242600064599*^9}, {
+   3.805244179524418*^9, 3.8052441796987467`*^9}, {3.805244218622534*^9, 
+   3.805244221547913*^9}, {3.805244286647112*^9, 
+   3.805244287857231*^9}},ExpressionUUID->"3fb50c56-1853-4c56-ba21-\
+381ab2a383fb"],
+
+Cell[BoxData[
+ RowBox[{"{", "\<\"R version 3.6.3 (2020-02-29)\"\>", "}"}]], "Print",
+ CellChangeTimes->{3.805239147911289*^9, 3.805239207562628*^9, 
+  3.8052392405814857`*^9, 3.8052422266101522`*^9, 3.8052425401611013`*^9, 
+  3.8052441272663727`*^9, 3.805244185413546*^9, 
+  3.805244230360257*^9},ExpressionUUID->"18f92bbf-0e43-4b0f-aecd-\
+0c194a70af0a"]
+}, Open  ]]
+},
+WindowSize->{995, 684},
+WindowMargins->{{Automatic, 69}, {Automatic, 19}},
+FrontEndVersion->"11.1 for Mac OS X x86 (32-bit, 64-bit Kernel) (April 27, \
+2017)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 191819, 4890, 17298, "Input", "ExpressionUUID" -> \
+"3fb50c56-1853-4c56-ba21-381ab2a383fb"],
+Cell[192402, 4914, 354, 6, 24, "Print", "ExpressionUUID" -> \
+"18f92bbf-0e43-4b0f-aecd-0c194a70af0a"]
+}, Open  ]]
+}
+]
+*)
+
