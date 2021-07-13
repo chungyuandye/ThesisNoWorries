@@ -9,7 +9,9 @@ Mac, R-3.6.3
 Mathematica 10.0以上
 
 請先在R視窗安裝lavaan及semTools套件
+
 install.packages("lavaan", dependencies = TRUE)
+
 install.packages("semTools", dependencies = TRUE)
 
 函數說明：
