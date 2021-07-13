@@ -1,8 +1,11 @@
 # ThesisNoWorries
 
 系統需求
+
 Windows, R-3.0.0
+
 Mac, R-3.6.3
+
 Mathematica 10.0以上
 
 請先在R視窗安裝lavaan及semTools套件
